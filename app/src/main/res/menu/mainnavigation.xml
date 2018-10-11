@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_navigation_chat_list"
+        android:enabled="true"
+        android:title="@string/navigation_chat"
+        android:icon="@drawable/chat_gray"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_navigation_friends"
+        android:enabled="true"
+        android:icon="@drawable/people_gray"
+        android:title="@string/navigation_people"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_navigation_profile"
+        android:enabled="true"
+        android:icon="@drawable/cc_gray"
+        android:title="@string/navigation_profile"
+        app:showAsAction="ifRoom"/>
+</menu>
