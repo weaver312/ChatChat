@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.weaverhong.lesson.chatchat">
-
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:allowBackup="true"
         android:icon="@drawable/chatlogo_img_3_square"
@@ -9,17 +9,22 @@
         android:roundIcon="@drawable/chatlogo_img_3_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity.MainActivity">
+        <activity android:name=".Activity.WelcomeActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".Activity.LoginActivity"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
         </activity>
-        <activity android:name=".Activity.RegistActivity">
+        <activity android:name=".Activity.RegistActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        </activity>
+        <activity android:name=".Activity.ChatActivity">
+        </activity>
+        <activity android:name=".Activity.MainActivity">
         </activity>
     </application>
 
