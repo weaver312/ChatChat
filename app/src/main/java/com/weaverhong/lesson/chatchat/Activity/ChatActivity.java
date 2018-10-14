@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.weaverhong.lesson.chatchat.ChatListItem;
+import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 import com.weaverhong.lesson.chatchat.R;
 
 public class ChatActivity extends AppCompatActivity {

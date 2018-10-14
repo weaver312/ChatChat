@@ -1,5 +1,7 @@
 package com.weaverhong.lesson.chatchat;
 
+import android.util.Log;
+
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.chat2.Chat;
@@ -8,11 +10,15 @@ import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.parts.Localpart;
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 
@@ -22,11 +28,15 @@ public class OpenfireConnector {
     private static final String IP = "192.168.191.1";
     private static final String DOMAIN = "weaver";
     private static ChatManager sChatManager;
+    private static AccountManager accountManager;
 
     static {
         try {
             buildConn();
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            Log.e("MYLOG", e.toString());
+            sAbstractXMPPConnection = null;
+        }
     }
 
     public static void buildConn() throws Exception {
@@ -79,5 +89,19 @@ public class OpenfireConnector {
 
     public static boolean isConnected() {
         return sAbstractXMPPConnection.isConnected();
+    }
+    public static void regist(String username, String password, String email, String name) throws Exception{
+        accountManager = AccountManager.getInstance(sAbstractXMPPConnection);
+        // SSL很麻烦，没弄明白怎么配置，先这么用上
+        accountManager.sensitiveOperationOverInsecureConnection(true);
+
+        Map<String, String> attrs = new HashMap<>();
+        attrs.put("email", email);
+        // username暂时用来代理username，其实按理说username应该是qq号，因为在mysql表里有唯一性限制，而name才是昵称，可以随意命名。
+        // 另外其他字段设置还没找到，以后再说
+        attrs.put("name", username);
+
+        accountManager.createAccount(Localpart.from(username), password,attrs);
+
     }
 }

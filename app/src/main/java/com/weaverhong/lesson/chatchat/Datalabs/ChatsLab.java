@@ -1,4 +1,6 @@
-package com.weaverhong.lesson.chatchat;
+package com.weaverhong.lesson.chatchat.Datalabs;
+
+import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 
 import java.util.ArrayList;
 import java.util.List;

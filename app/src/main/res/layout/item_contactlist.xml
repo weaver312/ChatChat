@@ -7,43 +7,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:id="@+id/chatlist_user"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="70dp"
-        android:layout_marginTop="8dp"
-        android:text="chat_username"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/chatlist_content"
+        android:id="@+id/contactlist_user"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="70dp"
-        android:layout_marginTop="4dp"
-        android:text="chat_content"
+        android:layout_marginTop="8dp"
+        android:text="username"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chatlist_user" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/chatlist_icon"
-        android:layout_width="46dp"
-        android:layout_height="40dp"
+        android:id="@+id/ccontactlist_icon"
+        android:layout_width="28dp"
+        android:layout_height="30dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/chatlist_user"
+        app:layout_constraintEnd_toStartOf="@+id/contactlist_user"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/person" />

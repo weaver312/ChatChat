@@ -1,4 +1,4 @@
-package com.weaverhong.lesson.chatchat;
+package com.weaverhong.lesson.chatchat.ListItem;
 
 public class ChatListItem {
     String user;

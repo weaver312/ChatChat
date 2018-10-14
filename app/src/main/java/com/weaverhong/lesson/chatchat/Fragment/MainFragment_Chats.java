@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.weaverhong.lesson.chatchat.Activity.ChatActivity;
-import com.weaverhong.lesson.chatchat.ChatListItem;
-import com.weaverhong.lesson.chatchat.ChatsLab;
+import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
+import com.weaverhong.lesson.chatchat.Datalabs.ChatsLab;
 import com.weaverhong.lesson.chatchat.R;
 
 import java.util.List;

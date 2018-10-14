@@ -28,11 +28,20 @@ public class LoginActivity extends Activity {
         Intent intent = new Intent(packageContext, LoginActivity.class);
         return intent;
     }
+    public static Intent newIntent(Context packageContext, String username) {
+        Intent intent = new Intent(packageContext, LoginActivity.class);
+        intent.putExtra("username", username);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle onSavedInstanceState) {
         super.onCreate(onSavedInstanceState);
         setContentView(R.layout.activity_login);
+        String username = null;
+
+        try {username = onSavedInstanceState.getString("username"); } catch (Exception e) {}
+
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -44,6 +53,8 @@ public class LoginActivity extends Activity {
         mEditTextpassword = findViewById(R.id.login_password);
         mButtonlogin = findViewById(R.id.loginbutton);
         mButtongotoregist = findViewById(R.id.gotoregistbutton);
+
+        if (username!=null) mEditTextusername.setText(username);
 
         mButtonlogin.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -9,8 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Chats;
@@ -37,8 +37,18 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.main_fragmentcontainer);
 
-        Toolbar toolbar = findViewById(R.id.mytoolbar);
-        toolbar.setTitle("");
+        // 这句话真的是要命，找了一晚上，太蛋疼了
+        // 网上有两种自定义toolbar的方案（包括官方文档）
+        // 1. 设置主题为noactionbar，然而这样就永远插不进去任何的actionbar了
+        // 2. 保持原主题，在这里直接setSupportActionBar(toolbar)，但是会报错说不能同时用两个bar
+        // 真正的解决方案在下面这句，必须告诉系统我要用自定义的toolbar了，系统才会用
+        // 网上的办法都是在不支持bar的版本的系统上使用的，都不能用
+        // link: https://www.cnblogs.com/Peter-Chen/p/6421354.html
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.toolbar_logo);
+
+        // ActionBar actionBar = getSupportActionBar();
+        // actionBar.setDisplayHomeAsUpEnabled(true);
 
 
         mBottomNavigationView = findViewById(R.id.navigation_container);

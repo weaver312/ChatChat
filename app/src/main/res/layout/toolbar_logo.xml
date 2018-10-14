@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.Toolbar
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mytoolbar"
     android:minHeight="?android:attr/actionBarSize"
+    android:background="?android:attr/colorPrimary"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="?android:attr/actionBarSize"
+    android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
     <android.support.v7.widget.AppCompatImageView
-        android:src="@drawable/person"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</android.support.v7.widget.Toolbar>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="14dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="14dp"
+        android:src="@drawable/chatchat_transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
