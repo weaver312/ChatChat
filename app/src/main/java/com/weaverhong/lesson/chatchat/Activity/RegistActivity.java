@@ -89,17 +89,18 @@ public class RegistActivity extends Activity {
                             finished = true;
                         } catch (Exception e) {
                             Looper.prepare();
-                            Toast.makeText(RegistActivity.this, "regist fail, you motherfucker", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegistActivity.this, "username used OR network error! ", Toast.LENGTH_SHORT).show();
                             Looper.loop();
                             return;
                         }
-                        Looper.prepare();
-                        Toast.makeText(RegistActivity.this, "regist success!", Toast.LENGTH_SHORT).show();
-                        Looper.loop();
                         if (finished) {
+                            Looper.prepare();
+                            Toast.makeText(RegistActivity.this, "regist success!", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
                             Intent intent = RegistActivity.this.getIntent().putExtra("username", mEditTextusername.getText().toString());
                             RegistActivity.this.setResult(1, intent);
                             RegistActivity.this.finish();
+                            return;
                         } else {
                             return;
                         }
