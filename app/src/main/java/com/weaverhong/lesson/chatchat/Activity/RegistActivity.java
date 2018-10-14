@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -33,7 +34,12 @@ public class RegistActivity extends Activity {
     protected void onCreate(Bundle onSavedInstanceState) {
         super.onCreate(onSavedInstanceState);
         setContentView(R.layout.activity_regist);
-        mHandler = new Handler();
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+            }
+        };
         mEditTextusername = findViewById(R.id.regist_username);
         mEditTextpassword = findViewById(R.id.regist_password);
         mEditEmail = findViewById(R.id.regist_emailaddress);
@@ -74,11 +80,13 @@ public class RegistActivity extends Activity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        boolean finished = false;
                         try {
                             OpenfireConnector.regist(mEditTextusername.getText().toString(),
                                     mEditTextpassword.getText().toString(),
                                     mEditEmail.getText().toString(),
                                     null);
+                            finished = true;
                         } catch (Exception e) {
                             Looper.prepare();
                             Toast.makeText(RegistActivity.this, "regist fail, you motherfucker", Toast.LENGTH_SHORT).show();
@@ -88,13 +96,13 @@ public class RegistActivity extends Activity {
                         Looper.prepare();
                         Toast.makeText(RegistActivity.this, "regist success!", Toast.LENGTH_SHORT).show();
                         Looper.loop();
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = LoginActivity.newIntent(RegistActivity.this, mEditTextusername.getText().toString());
-                                startActivity(intent);
-                            }
-                        });
+                        if (finished) {
+                            Intent intent = RegistActivity.this.getIntent().putExtra("username", mEditTextusername.getText().toString());
+                            RegistActivity.this.setResult(1, intent);
+                            RegistActivity.this.finish();
+                        } else {
+                            return;
+                        }
                     }
                 }).start();
             }

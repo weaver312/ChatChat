@@ -96,8 +96,18 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 // 跳转去RegistActivity，
                 Intent intent = RegistActivity.newIntent(LoginActivity.this);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(resultCode){
+            case 1:
+                mEditTextusername.setText(data.getStringExtra("username")==null?"":data.getStringExtra("username"));
+                break;
+            default:
+                return;
+        }
     }
 }
