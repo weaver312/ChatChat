@@ -1,5 +1,6 @@
 package com.weaverhong.lesson.chatchat.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.weaverhong.lesson.chatchat.Activity.UserActivity;
 import com.weaverhong.lesson.chatchat.Datalabs.ContactLab;
 import com.weaverhong.lesson.chatchat.ListItem.ContactListItem;
 import com.weaverhong.lesson.chatchat.R;
@@ -22,9 +24,7 @@ public class MainFragment_Contacts extends Fragment {
     private View view;
 
     public static MainFragment_Contacts newInstance() {
-        Bundle args = new Bundle();
         MainFragment_Contacts fragment = new MainFragment_Contacts();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -85,8 +85,9 @@ public class MainFragment_Contacts extends Fragment {
 
         @Override
         public void onClick(View v) {
-            // Intent intent = ContactActivity.newIntent(getActivity(), mItem);
-            // startActivity(intent);
+            Intent intent = UserActivity.newInstance(getActivity());
+            intent.putExtra("username", mItem.getUsername());
+            startActivity(intent);
         }
 
         public void bind(ContactListItem item) {

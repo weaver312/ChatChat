@@ -25,7 +25,8 @@
         <activity android:name=".Activity.ChatActivity">
         </activity>
         <activity android:name=".Activity.MainActivity">
-
+        </activity>
+        <activity android:name=".Activity.UserActivity">
         </activity>
     </application>
 
