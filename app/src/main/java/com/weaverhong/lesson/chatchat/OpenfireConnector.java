@@ -4,10 +4,11 @@ import android.util.Log;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
-import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
-import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
@@ -15,6 +16,7 @@ import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -24,9 +26,9 @@ import javax.net.ssl.HostnameVerifier;
 
 public class OpenfireConnector {
 
-    private static AbstractXMPPConnection sAbstractXMPPConnection;
-    private static final String IP = "192.168.191.1";
-    private static final String DOMAIN = "weaver";
+    public static AbstractXMPPConnection sAbstractXMPPConnection;
+    public static final String IP = "192.168.191.1";
+    public static final String DOMAIN = "192.168.191.1";
     private static ChatManager sChatManager;
     private static AccountManager accountManager;
 
@@ -49,6 +51,7 @@ public class OpenfireConnector {
                 .setXmppDomain(serviceName)
                 .setHostnameVerifier(verifier)
                 .setHostAddress(addr)
+                .setDebuggerEnabled(true)
                 .build();
         sAbstractXMPPConnection = new XMPPTCPConnection(config);
         sAbstractXMPPConnection.connect();
@@ -58,17 +61,18 @@ public class OpenfireConnector {
         sAbstractXMPPConnection.disconnect();
     }
 
-    public static void login(String username, String password) throws Exception {
+    public static boolean login(String username, String password) throws Exception {
         if (!sAbstractXMPPConnection.isConnected())
-            sAbstractXMPPConnection.connect();
+            buildConn();
         sAbstractXMPPConnection.login(username, password);
-        sChatManager = ChatManager.getInstanceFor(sAbstractXMPPConnection);
-        sChatManager.addIncomingListener(new IncomingChatMessageListener() {
-            @Override
-            public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
-
-            }
-        });
+        // sChatManager.addIncomingListener(new IncomingChatMessageListener() {
+        //     @Override
+        //     public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
+        //
+        //     }
+        // });
+        boolean fuckyou = sAbstractXMPPConnection.isAuthenticated();
+        return fuckyou;
     }
 
     public static void sendmessage(String address, String message) throws Exception {
@@ -103,5 +107,24 @@ public class OpenfireConnector {
 
         accountManager.createAccount(Localpart.from(username), password,attrs);
 
+    }
+
+    public static boolean replyfriendapply(String alertName, boolean refused) throws SmackException.NotConnectedException, InterruptedException {
+        Presence presenceRes;
+        if (refused)
+            presenceRes = new Presence(Presence.Type.unsubscribe);
+        else
+            presenceRes = new Presence(Presence.Type.subscribed);
+        try {
+            presenceRes.setTo(JidCreate.entityBareFrom(alertName+"@"+OpenfireConnector.DOMAIN));
+        } catch (XmppStringprepException e) {
+            e.printStackTrace();
+        }
+        sAbstractXMPPConnection.sendStanza(presenceRes);
+        return true;
+    }
+
+    public static Roster getRoster() {
+        return Roster.getInstanceFor(sAbstractXMPPConnection);
     }
 }

@@ -96,10 +96,10 @@ public class RegistActivity extends Activity {
                         if (finished) {
                             Looper.prepare();
                             Toast.makeText(RegistActivity.this, "regist success!", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
                             Intent intent = RegistActivity.this.getIntent().putExtra("username", mEditTextusername.getText().toString());
                             RegistActivity.this.setResult(1, intent);
                             RegistActivity.this.finish();
+                            Looper.loop();
                             return;
                         } else {
                             return;

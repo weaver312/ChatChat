@@ -3,6 +3,7 @@ package com.weaverhong.lesson.chatchat.Activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -66,27 +67,39 @@ public class LoginActivity extends Activity {
                     @Override
                     public void run() {
                         try {
+                            OpenfireConnector.breakConn();
                             OpenfireConnector.login(username, password);
-                        } catch (Exception e) { Log.e("MYLOG1", e.toString()); }
+                        } catch (Exception e) {
+                            Log.e("MYLOG1", e.toString());
+                        }
                         try {
                             if (OpenfireConnector.isAuthenticated()) {
-                                mHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(LoginActivity.this, "Yeah, login success!", Toast.LENGTH_LONG).show();
-                                        Intent intent = MainActivity.newIntent(LoginActivity.this);
-                                        startActivity(intent);
-                                    }
-                                });
-                            } else {
                                 Looper.prepare();
-                                if (OpenfireConnector.isConnected())
-                                    Toast.makeText(LoginActivity.this, "Shit, login fail!", Toast.LENGTH_LONG).show();
-                                else
-                                    Toast.makeText(LoginActivity.this, "God, connect fail", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, "Yeah, login success!", Toast.LENGTH_LONG).show();
+                                SharedPreferences sp = getSharedPreferences("chatchat", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putString("username", username);
+                                editor.putString("password", password);
+                                editor.putLong("lastlogintime", System.currentTimeMillis());
+                                editor.commit();
+                                Intent intent = MainActivity.newIntent(LoginActivity.this);
+                                startActivity(intent);
                                 Looper.loop();
+                            } else {
+                                if (OpenfireConnector.isConnected()) {
+                                    Looper.prepare();
+                                    Toast.makeText(LoginActivity.this, "Shit, login fail!", Toast.LENGTH_LONG).show();
+                                    Looper.loop();
+                                }
+                                else {
+                                    Looper.prepare();
+                                    Toast.makeText(LoginActivity.this, "God, connect fail", Toast.LENGTH_LONG).show();
+                                    Looper.loop();
+                                }
                             }
-                        } catch (Exception e) { Log.e("MYLOG2", e.toString()); }
+                        } catch (Exception e) {
+                            Log.e("MYLOG2", e.toString());
+                        }
                     }
                 }).start();
             }
