@@ -31,13 +31,13 @@ public class OpenfireConnector {
     public static final String DOMAIN = "192.168.191.1";
     private static ChatManager sChatManager;
     private static AccountManager accountManager;
+    public static String username;
 
     static {
         try {
             buildConn();
         } catch (Exception e) {
             Log.e("MYLOG", e.toString());
-            sAbstractXMPPConnection = null;
         }
     }
 
@@ -54,6 +54,7 @@ public class OpenfireConnector {
                 .setDebuggerEnabled(true)
                 .build();
         sAbstractXMPPConnection = new XMPPTCPConnection(config);
+        getRoster().setSubscriptionMode(Roster.SubscriptionMode.manual);
         sAbstractXMPPConnection.connect();
     }
 

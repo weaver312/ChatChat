@@ -67,7 +67,9 @@ public class LoginActivity extends Activity {
                     @Override
                     public void run() {
                         try {
-                            OpenfireConnector.breakConn();
+                            // OpenfireConnector.breakConn();
+                            OpenfireConnector.buildConn();
+
                             OpenfireConnector.login(username, password);
                         } catch (Exception e) {
                             Log.e("MYLOG1", e.toString());
@@ -88,7 +90,7 @@ public class LoginActivity extends Activity {
                             } else {
                                 if (OpenfireConnector.isConnected()) {
                                     Looper.prepare();
-                                    Toast.makeText(LoginActivity.this, "Shit, login fail!", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(LoginActivity.this, "login fail!", Toast.LENGTH_LONG).show();
                                     Looper.loop();
                                 }
                                 else {

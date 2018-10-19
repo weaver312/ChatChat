@@ -1,10 +1,7 @@
 package com.weaverhong.lesson.chatchat.Fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -25,13 +22,7 @@ import com.weaverhong.lesson.chatchat.ListItem.ContactListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
-import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.AndFilter;
-import org.jivesoftware.smack.filter.StanzaFilter;
-import org.jivesoftware.smack.filter.StanzaTypeFilter;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smackx.search.ReportedData;
@@ -43,7 +34,6 @@ import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.DOMAIN;
@@ -54,7 +44,6 @@ public class MainFragment_Contacts extends Fragment {
     private RecyclerView mRecyclerView;
     private ContactAdapter mContactAdapter;
     private View view;
-    private String name,password,response,acceptAdd,alertName,alertSubName;
     FloatingActionButton mFloatingActionButton;
 
     public static MainFragment_Contacts newInstance() {
@@ -65,64 +54,6 @@ public class MainFragment_Contacts extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // 注册监听器
-        MyReceiver myReceiver = new MyReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.weaverhong.lesson.chatchat.addfriend");
-        getActivity().registerReceiver(myReceiver,intentFilter);
-
-
-        //条件过滤器
-        StanzaFilter stanzaFilter = new AndFilter(new StanzaTypeFilter(Presence.class));
-        //packet监听器
-        StanzaListener listener = new StanzaListener() {
-            @Override
-            public void processStanza(Stanza packet) {
-                System.out.println("PresenceService-"+packet.toXML());
-                if(packet instanceof Presence){
-                    Presence presence = (Presence)packet;
-                    String from = presence.getFrom().toString();//发送方
-                    String to = presence.getTo().toString();//接收方
-                    if (presence.getType().equals(Presence.Type.subscribe)) {
-                        System.out.println("收到添加请求！");
-                        //发送广播传递发送方的JIDfrom及字符串
-                        acceptAdd = "收到添加请求！";
-                        Intent intent = new Intent();
-                        intent.putExtra("fromName", from);
-                        intent.putExtra("acceptAdd", acceptAdd);
-                        intent.setAction("com.weaverhong.lesson.chatchat.addfriend");
-                        getActivity().sendBroadcast(intent);
-                        startActivity(intent);
-                    } else if (presence.getType().equals(
-                            Presence.Type.subscribed)) {
-                        //发送广播传递response字符串
-                        response = "恭喜，对方同意添加好友！";
-                        Intent intent = new Intent();
-                        intent.putExtra("response", response);
-                        intent.setAction("com.weaverhong.lesson.chatchat.addfriend");
-                        getActivity().sendBroadcast(intent);
-                    } else if (presence.getType().equals(
-                            Presence.Type.unsubscribe)) {
-                        //发送广播传递response字符串
-                        response = "抱歉，对方拒绝添加好友，将你从好友列表移除！";
-                        Intent intent = new Intent();
-                        intent.putExtra("response", response);
-                        intent.setAction("com.weaverhong.lesson.chatchat.addfriend");
-                        getActivity().sendBroadcast(intent);
-                    } else if (presence.getType().equals(
-                            Presence.Type.unsubscribed)){
-                    } else if (presence.getType().equals(
-                            Presence.Type.unavailable)) {
-                        System.out.println("好友下线！");
-                    } else {
-                        System.out.println("好友上线！");
-                    }
-                }
-            }
-        };
-        OpenfireConnector.sAbstractXMPPConnection.addAsyncStanzaListener(listener, stanzaFilter);
-
     }
 
     @Override
@@ -147,7 +78,26 @@ public class MainFragment_Contacts extends Fragment {
                                 Toast.makeText(getActivity(), "empty input! no search executed" + input, Toast.LENGTH_LONG).show();
                             } else {
                                 try {
-                                    searchUser(editText.getText().toString());
+                                    List<String> result = searchUser(editText.getText().toString());
+                                    String [] resultarray = new String[result.size()];
+                                    result.toArray(resultarray);
+                                    AlertDialog alertDialog = new AlertDialog
+                                            .Builder(getActivity())
+                                            .setItems(resultarray, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    // 注意这里的下标从0开始，index = [0 ~ (size-1)]
+                                                    try {
+                                                        Toast.makeText(getActivity(), "try to send a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
+                                                        addFriend(OpenfireConnector.getRoster(), resultarray[which], resultarray[which]);
+                                                        Toast.makeText(getActivity(), "have sent a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
+                                                    } catch (Exception e) {
+                                                        // 这里试一下这个getLocalizedMessage
+                                                        Log.e("MYLOG9",e.toString());
+                                                    }
+                                                }
+                                            }).create();
+                                    alertDialog.show();
                                 } catch (Exception e) {
                                     Log.e("MYLOG4", e.toString());
                                 }
@@ -161,11 +111,18 @@ public class MainFragment_Contacts extends Fragment {
 
         return view;
     }
+
     @Override
     public void onResume() {
         super.onResume();
         updateUI();
     }
+
+    // @Override
+    // public void onDestroy() {
+    //     getActivity().unregisterReceiver(myReceiver);
+    //     super.onDestroy();
+    // }
 
     private void updateUI() {
         List<ContactListItem> list = ContactLab.mContactitems;
@@ -241,78 +198,16 @@ public class MainFragment_Contacts extends Fragment {
         }
     }
 
-    private class MyReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //接收传递的字符串response
-            Bundle bundle = intent.getExtras();
-            response = bundle.getString("response");
-            System.out.println("广播收到"+response);
-            // text_response.setText(response);
-            if(response==null){
-                //获取传递的字符串及发送方JID
-                acceptAdd = bundle.getString("acceptAdd");
-                alertName = bundle.getString("fromName");
-                if(alertName!=null){
-                    //裁剪JID得到对方用户名
-                    alertSubName = alertName.substring(0,alertName.indexOf("@"));
-                }
-                if(acceptAdd.equals("收到添加请求")){
-                    //弹出一个对话框，包含同意和拒绝按钮
-                    AlertDialog.Builder builder  = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("添加好友请求");
-                    builder.setMessage("用户"+alertSubName+"请求添加你为好友" );
-                    builder.setPositiveButton("同意",new DialogInterface.OnClickListener() {
-                        //同意按钮监听事件，发送同意Presence包及添加对方为好友的申请
-                        @Override
-                        public void onClick(DialogInterface dialog, int arg1) {
-                            try {
-                                boolean result = OpenfireConnector.replyfriendapply(alertName, false);
-                                if (result) addFriend(OpenfireConnector.getRoster(), alertSubName, alertSubName);
-                                else return;
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    builder.setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int arg1) {
-                            try {
-                                boolean result = OpenfireConnector.replyfriendapply(alertName, true);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    builder.show();
-                }
-            }
-        }
-    }
-
-    public  boolean addFriend(Roster roster, String friendName, String name) throws Exception{
-
-        UserSearchManager userSearchManger;
-        try {
-            EntityBareJid jid = JidCreate.entityBareFrom(friendName.trim()+ DOMAIN);
-            roster.createEntry(jid, name, new String[]{"Friends"});
-            System.out.println("添加好友成功！！");
-            return true;
-        } catch (XMPPException e) {
-            e.printStackTrace();
-            System.out.println("失败！！"+e);
-            return false;
-        }
-    }
-
-    public List<String> searchUser(final String username) throws Exception{
+    // 准备放进OpenfireConnector
+    public List<String> searchUser(final String username) {
         List<String> result = new ArrayList<>();
         try {
             UserSearchManager userSearchManger = new UserSearchManager(sAbstractXMPPConnection);
+            // 这句不能少，具体原因看此方法addIQProvider()的注释
             ProviderManager.addIQProvider("query", "jabber:iq:search", new UserSearch.Provider());
 
+            // 这里本来是用domain的，前面改来改去怀疑这是因为domain不在DNS里，所以改成硬编码的IP了
+            // 后来发现是因为smack版本4.3.0有一点改动，gradle里换成smack 4.2.3就能用了
             DomainBareJid jid = JidCreate.domainBareFrom("search.192.168.191.1");
             Form searchForm = userSearchManger.getSearchForm(jid);
             Form answerForm = searchForm.createAnswerForm();
@@ -321,11 +216,9 @@ public class MainFragment_Contacts extends Fragment {
 
             ReportedData resData = userSearchManger.getSearchResults(answerForm, jid);
             List<ReportedData.Row> list = resData.getRows();
-            Iterator<ReportedData.Row> it = list.iterator();
 
-            while (it.hasNext()) {
-                ReportedData.Row row = it.next();
-                result.add(row.getValues("Name")==null?"":row.getValues("Name").iterator().next().toString());
+            for (ReportedData.Row row : list) {
+                result.add(row.getValues("Name") == null ? "" : row.getValues("Name").iterator().next().toString());
                 // Log.e("MYLOG6", row.getValues("Name").iterator().next().toString());
             }
             // Log.e("MYLOG6", ""+OpenfireConnector.sAbstractXMPPConnection.isConnected());
@@ -337,6 +230,22 @@ public class MainFragment_Contacts extends Fragment {
             Log.e("MYLOG5", e.getMessage());
         }
         return result;
+    }
+
+    public boolean addFriend(Roster roster, String friendName, String name) throws Exception {
+        try {
+            EntityBareJid jid = JidCreate.entityBareFrom(friendName.trim()+"@"+ DOMAIN);
+            // 这里因为版本原因，网上原先的解决方法第三个参数用null也可，表示不分组的朋友
+            // 通过管理员添加貌似也可null
+            // 但是smack现在好像必须加分组了，null就添加不上
+            roster.createEntry(jid, name, new String[] {"friends"});
+            Log.e("MYLOG8","add friend success");
+            return true;
+        } catch (XMPPException e) {
+            Log.e("MYLOG8",e.toString());
+            Log.e("MYLOG8","add friend fail");
+            return false;
+        }
     }
 }
 

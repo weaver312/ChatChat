@@ -1,14 +1,18 @@
 package com.weaverhong.lesson.chatchat.Fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
 public class MainFragment_Profile extends Fragment {
@@ -41,6 +45,25 @@ public class MainFragment_Profile extends Fragment {
 
         ArrayAdapter<String> tempAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, liststr);
         mProfileListview.setAdapter(tempAdapter);
+        mProfileListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position==3) {
+                    // Quit login
+                    // delete from SharedPreference
+                    SharedPreferences sp = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.remove("username");
+                    editor.remove("lastlogintime");
+                    editor.remove("password");
+                    editor.clear();
+                    editor.commit();
+                    // disconnect connection to server
+                    OpenfireConnector.breakConn();
+                    getActivity().finish();
+                }
+            }
+        });
 
         return view;
     }
