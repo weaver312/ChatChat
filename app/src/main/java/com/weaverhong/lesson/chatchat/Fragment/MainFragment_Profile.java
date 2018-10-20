@@ -48,19 +48,27 @@ public class MainFragment_Profile extends Fragment {
         mProfileListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position==3) {
-                    // Quit login
-                    // delete from SharedPreference
-                    SharedPreferences sp = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sp.edit();
-                    editor.remove("username");
-                    editor.remove("lastlogintime");
-                    editor.remove("password");
-                    editor.clear();
-                    editor.commit();
-                    // disconnect connection to server
-                    OpenfireConnector.breakConn();
-                    getActivity().finish();
+                switch (position) {
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        // Quit login
+                        // delete from SharedPreference
+                        SharedPreferences sp = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.remove("username");
+                        editor.remove("lastlogintime");
+                        editor.remove("password");
+                        editor.clear();
+                        editor.commit();
+                        // disconnect connection to server
+                        OpenfireConnector.breakConn();
+                        getActivity().finish();
+                        break;
                 }
             }
         });

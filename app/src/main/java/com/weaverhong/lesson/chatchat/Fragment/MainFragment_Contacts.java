@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.DOMAIN;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.IP;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.getRoster;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.sAbstractXMPPConnection;
 
 public class MainFragment_Contacts extends Fragment {
@@ -125,6 +128,10 @@ public class MainFragment_Contacts extends Fragment {
     // }
 
     private void updateUI() {
+        // NOTICE:
+        // always call this method before call updateUI():
+        // ContactLab.refreshdata();
+
         List<ContactListItem> list = ContactLab.mContactitems;
 
         if (list.size() == 0) {
@@ -147,9 +154,37 @@ public class MainFragment_Contacts extends Fragment {
         }
     }
 
+    private void updateUI(int position) {
+        // NOTICE:
+        // always call this method before call updateUI():
+        // ContactLab.refreshdata();
+
+        List<ContactListItem> list = ContactLab.mContactitems;
+
+        if (list.size() == 0) {
+            view.findViewById(R.id.nocontacts).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.contacts_list).setVisibility(View.GONE);
+            return;
+        } else {
+            view.findViewById(R.id.nocontacts).setVisibility(View.GONE);
+            view.findViewById(R.id.contacts_list).setVisibility(View.VISIBLE);
+        }
+
+        if (mContactAdapter == null) {
+            mContactAdapter = new MainFragment_Contacts.ContactAdapter(list);
+            mRecyclerView.setAdapter(mContactAdapter);
+        } else {
+            mContactAdapter.setList(list);
+
+            // notify data change, important
+            mContactAdapter.notifyItemChanged(position);
+        }
+    }
+
     private class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private TextView mUserTextView;
+        private Button mButton;
 
         private ContactListItem mItem;
 
@@ -157,18 +192,46 @@ public class MainFragment_Contacts extends Fragment {
             super(inflater.inflate(R.layout.item_contactlist, parent, false));
             itemView.setOnClickListener(this);
             mUserTextView = itemView.findViewById(R.id.contactlist_user);
+            mButton = itemView.findViewById(R.id.contacts_list);
         }
 
         @Override
         public void onClick(View v) {
-            Intent intent = UserActivity.newInstance(getActivity());
-            intent.putExtra("username", mItem.getUsername());
-            startActivity(intent);
+            // 只有friend才能chat
+            if (mItem.isIffriend()) {
+                Intent intent = UserActivity.newInstance(getActivity());
+                intent.putExtra("username", mItem.getUsername());
+                startActivity(intent);
+            }
         }
 
         public void bind(ContactListItem item) {
             mItem = item;
             mUserTextView.setText(mItem.getUsername());
+            mButton.setVisibility(View.VISIBLE);
+            mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // balabala
+                    try {
+                        // 添加好友行为，调用addFriend函数
+                        addFriend(getRoster(),mItem.getUsername(),mItem.getUsername());
+                        // 检查是否添加完了，或者updateUI并传一个值，使仅update这个Holder的UI
+                        if (getRoster().getEntry((EntityBareJid) JidCreate.from(mItem.getUsername()+"@"+IP)).getName()==null)
+                            // 添加失败
+                            ;
+                        else {
+                            // 添加成功
+
+                            updateUI(getAdapterPosition());
+                        }
+                    } catch (Exception e) {
+                        // e.printStackTrace();
+                    }
+
+
+                }
+            });
         }
     }
 
