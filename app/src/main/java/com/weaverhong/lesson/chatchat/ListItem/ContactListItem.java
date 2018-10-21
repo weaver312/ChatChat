@@ -33,4 +33,5 @@ public class ContactListItem {
         this.username = username;
         this.iffriend = iffriend;
     }
+
 }

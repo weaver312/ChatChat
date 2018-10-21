@@ -37,17 +37,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.385" />
-            <TextView
-                android:id="@+id/profile_registtime"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginEnd="30dp"
-                android:layout_marginTop="0dp"
-                android:text="RegistTime"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_username" />
 
             <ImageView
                 android:id="@+id/profile_icon"

@@ -17,6 +17,16 @@ import android.widget.Toast;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
+import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.filter.AndFilter;
+import org.jivesoftware.smack.filter.StanzaFilter;
+import org.jivesoftware.smack.filter.StanzaTypeFilter;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jxmpp.jid.EntityBareJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
+
 public class LoginActivity extends Activity {
 
     EditText mEditTextusername;
@@ -55,6 +65,8 @@ public class LoginActivity extends Activity {
         mButtonlogin = findViewById(R.id.loginbutton);
         mButtongotoregist = findViewById(R.id.gotoregistbutton);
 
+
+
         if (username!=null) mEditTextusername.setText(username);
 
         mButtonlogin.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +81,78 @@ public class LoginActivity extends Activity {
                         try {
                             // OpenfireConnector.breakConn();
                             OpenfireConnector.buildConn();
+
+                            // 试一下
+                            StanzaFilter stanzaFilter = new AndFilter(new StanzaTypeFilter(Presence.class));
+                            // PacketFilter packetFilter = (PacketFilter) new AndFilter(new PacketTypeFilter(Presence.class));
+                            StanzaListener sendlistener = new StanzaListener() {
+                                @Override
+                                public void processStanza(Stanza packet) {
+                                    if(packet instanceof Presence){
+                                        Presence presence = (Presence)packet;
+                                        // 这里真的佛了，这个版本的smack发送presence时竟然不会加自己的from在packet里面，诡异。
+                                        // 那谁知道你是谁啊？还怎么回复好友申请啊？头大。
+                                        // 所以这里还得自己拦截一下包，看有没有from，如果没有就要自己加上from=username@192.168.191.1
+                                        // if condition是因为，如果是上面这种情况的包，处理完之后就不进行后面的处理了
+                                        SharedPreferences sp = getSharedPreferences("chatchat", Context.MODE_PRIVATE);
+                                        String username = sp.getString("username","admin");
+                                        Log.e("MYLOG-MAIN: ", presence.toString());
+                                        String acceptAdd, response;
+                                        if (presence.getFrom()==null) {
+                                            try {
+                                                presence.setFrom((EntityBareJid) JidCreate.from(username + "@" + OpenfireConnector.IP));
+                                                Log.e("MYLOG-Change send message from: ", presence.getFrom().toString());
+                                            } catch (XmppStringprepException e) {
+                                                // e.printStackTrace();
+                                            }
+                                            ////////////////////////////////////////////////////////////////////////
+                                            // 只处理发给自己的信息，再判断一下
+                                            // } else if (presence.getTo().toString().equals(username+"@"+ OpenfireConnector.IP)) {
+                                        } else {
+                                            Log.e("MYLOG-receive message from: ", presence.toString());
+                                            String from = presence.getFrom().toString();
+                                            if (presence.getType().equals(Presence.Type.subscribe)) {
+                                                Log.e("MYLOG7", "received a friend request");
+                                                acceptAdd = "receivedrequest";
+                                                Intent intent = new Intent();
+                                                intent.putExtra("response", "requestfriend");
+                                                intent.putExtra("fromName", from);
+                                                // 说明请求种类
+                                                intent.putExtra("acceptAdd", acceptAdd);
+                                                intent.setAction("com.weaverhong.lesson.chatchat.addfriend");
+                                                sendBroadcast(intent);
+                                            } else if (presence.getType().equals(Presence.Type.subscribed)) {
+                                                //发送广播传递response字符串
+                                                response = "you are now a friend of his/her!";
+                                                Intent intent = new Intent();
+                                                intent.putExtra("response", response);
+                                                intent.setAction("com.weaverhong.lesson.chatchat.addfriend");
+                                                sendBroadcast(intent);
+                                            } else if (presence.getType().equals(Presence.Type.unsubscribe)) {
+                                                //发送广播传递response字符串
+                                                response = "request rejected... you are deleted from his/her friends list";
+                                                Intent intent = new Intent();
+                                                intent.putExtra("response", response);
+                                                intent.setAction("com.weaverhong.lesson.chatchat.addfriend");
+                                                sendBroadcast(intent);
+                                            } else if (presence.getType().equals(Presence.Type.unsubscribed)) {
+
+                                            } else if (presence.getType().equals(Presence.Type.unavailable)) {
+                                                // System.out.println("好友下线！");
+                                            } else {
+                                                // System.out.println("好友上线！");
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                            // 这几行非常讨厌，不知道哪个能拦截到包，只好全装上。这回就是收发所有的包都会被拦截了
+                            OpenfireConnector.sAbstractXMPPConnection.addSyncStanzaListener(sendlistener, stanzaFilter);
+                            OpenfireConnector.sAbstractXMPPConnection.addAsyncStanzaListener(sendlistener, stanzaFilter);
+                            OpenfireConnector.sAbstractXMPPConnection.addPacketListener(sendlistener, stanzaFilter);
+                            OpenfireConnector.sAbstractXMPPConnection.addPacketInterceptor(sendlistener, stanzaFilter);
+                            OpenfireConnector.sAbstractXMPPConnection.addPacketSendingListener(sendlistener, stanzaFilter);
+                            ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
                             OpenfireConnector.login(username, password);
                         } catch (Exception e) {
@@ -125,4 +209,6 @@ public class LoginActivity extends Activity {
                 return;
         }
     }
+
+
 }

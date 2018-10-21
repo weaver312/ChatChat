@@ -5,6 +5,7 @@ import android.util.Log;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Presence;
@@ -127,5 +128,21 @@ public class OpenfireConnector {
 
     public static Roster getRoster() {
         return Roster.getInstanceFor(sAbstractXMPPConnection);
+    }
+
+    public boolean addFriend(Roster roster, String friendName, String name) throws Exception {
+        try {
+            EntityBareJid jid = JidCreate.entityBareFrom(friendName.trim()+"@"+ DOMAIN);
+            // 这里因为版本原因，网上原先的解决方法第三个参数用null也可，表示不分组的朋友
+            // 通过管理员添加貌似也可null
+            // 但是smack现在好像必须加分组了，null就添加不上
+            roster.createEntry(jid, name, new String[] {"friends"});
+            Log.e("MYLOG8","add friend success");
+            return true;
+        } catch (XMPPException e) {
+            Log.e("MYLOG8",e.toString());
+            Log.e("MYLOG8","add friend fail");
+            return false;
+        }
     }
 }

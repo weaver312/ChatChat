@@ -40,9 +40,11 @@ public class MainFragment_Profile extends Fragment {
         view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mUsernameTextview = view.findViewById(R.id.profile_username);
-        mRegisttimeTextview = view.findViewById(R.id.profile_registtime);
+        // mRegisttimeTextview = view.findViewById(R.id.profile_registtime);
         mProfileListview = view.findViewById(R.id.profile_optionslist);
 
+        SharedPreferences sp = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
+        mUsernameTextview.setText(sp.getString("username", "null"));
         ArrayAdapter<String> tempAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, liststr);
         mProfileListview.setAdapter(tempAdapter);
         mProfileListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {

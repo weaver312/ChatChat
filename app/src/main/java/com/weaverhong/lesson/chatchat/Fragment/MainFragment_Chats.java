@@ -53,8 +53,8 @@ public class MainFragment_Chats extends Fragment {
         updateUI();
     }
 
+    List<ChatListItem> list = ChatsLab.mChatitems;
     private void updateUI() {
-        List<ChatListItem> list = ChatsLab.mChatitems;
 
         if (list.size() == 0) {
             view.findViewById(R.id.norecentchats).setVisibility(View.VISIBLE);

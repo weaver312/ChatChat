@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/chat_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="textview"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,6 +32,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
+            android:id="@+id/chat_edittext"
             android:layout_weight="5"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -39,6 +40,7 @@
             android:hint="input message here" />
 
         <Button
+            android:id="@+id/chat_send"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"

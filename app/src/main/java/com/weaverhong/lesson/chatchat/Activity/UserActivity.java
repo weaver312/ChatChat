@@ -11,7 +11,8 @@ import com.weaverhong.lesson.chatchat.R;
 
 public class UserActivity extends AppCompatActivity {
 
-    TextView mChatwithuser;
+    TextView mUsername;
+    TextView mChatwith;
     TextView mDeleteuser;
 
     public static Intent newInstance(Context context) {
@@ -27,11 +28,13 @@ public class UserActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.toolbar_logo);
 
-        mChatwithuser = findViewById(R.id.user_username);
+        mUsername = findViewById(R.id.user_username);
+        mChatwith = findViewById(R.id.user_chatwith);
         mDeleteuser = findViewById(R.id.user_delete);
 
-        String fuck = getIntent().getStringExtra("username");
+        String username = getIntent().getStringExtra("username");
+        mUsername.setText(username==null?"":username);
 
-        mChatwithuser.setText(fuck==null?"":fuck);
+
     }
 }
