@@ -13,6 +13,7 @@ public class MessageEntity {
         return direction;
     }
 
+    // 0 is sendmsg, 1 is receivemsg
     public void setDirection(int direction) {
         this.direction = direction;
     }

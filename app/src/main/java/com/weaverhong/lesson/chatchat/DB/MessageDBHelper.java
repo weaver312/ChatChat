@@ -28,10 +28,13 @@ public class MessageDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE "+TB_NAME+"" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "MSGTRANSID TEXT UNIQUE," +
+                // "MSGTRANID TEXT UNIQUE," +
+                "MSGTRANID TEXT," +
                 "SENDERNAME TEXT," +
+                "RECEIVERNAME TEXT," +
                 "CREATETIME TEXT," +
-                "CONTENT TEXT)");
+                "CONTENT TEXT," +
+                "DIRECTION INTEGER)");
     }
 
     @Override

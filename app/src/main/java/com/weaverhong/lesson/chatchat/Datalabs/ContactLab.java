@@ -1,5 +1,7 @@
 package com.weaverhong.lesson.chatchat.Datalabs;
 
+import android.util.Log;
+
 import com.weaverhong.lesson.chatchat.ListItem.ContactListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 
@@ -44,6 +46,8 @@ public class ContactLab {
         mContactitems = entrieslist;
 
         refreshdate_nogroup();
+
+        Log.e("Refreshdatafinish", "debug");
     }
 
     public static void refreshdate_nogroup() {

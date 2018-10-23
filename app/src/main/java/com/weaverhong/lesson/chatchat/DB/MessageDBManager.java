@@ -13,7 +13,7 @@ import java.util.List;
 public class MessageDBManager {
 
     private MessageDBHelper mDBHelper;
-    private String TBNAME;
+    private static final String TBNAME = "table_chats";
 
     public MessageDBManager(Context context) {
         mDBHelper = new MessageDBHelper(context);
@@ -27,6 +27,7 @@ public class MessageDBManager {
         values.put("receivername", item.getReceivername());
         values.put("createtime", item.getCreatetime());
         values.put("content", item.getContent());
+        values.put("direction", item.getDirection());
         db.insert(TBNAME, null, values);
         db.close();
     }
@@ -40,6 +41,7 @@ public class MessageDBManager {
             values.put("receivername", item.getReceivername());
             values.put("createtime", item.getCreatetime());
             values.put("content", item.getContent());
+            values.put("direction", item.getDirection());
             db.insert(TBNAME, null, values);
         }
         db.close();
@@ -65,6 +67,7 @@ public class MessageDBManager {
         values.put("receivername", item.getReceivername());
         values.put("createtime", item.getCreatetime());
         values.put("content", item.getContent());
+        values.put("direction", item.getDirection());
         db.update(TBNAME, values, "ID=?", new String[]{String.valueOf(item.getId())});
         db.close();
     }
@@ -84,6 +87,7 @@ public class MessageDBManager {
                 item.setReceivername(cursor.getString(cursor.getColumnIndex("RECEIVERNAME")));
                 item.setCreatetime(cursor.getString(cursor.getColumnIndex("CREATETIME")));
                 item.setContent(cursor.getString(cursor.getColumnIndex("CONTENT")));
+                item.setDirection(cursor.getInt(cursor.getColumnIndex("DIRECTION")));
                 rateList.add(item);
             }
             cursor.close();
@@ -106,6 +110,7 @@ public class MessageDBManager {
             item.setReceivername(cursor.getString(cursor.getColumnIndex("RECEIVERNAME")));
             item.setCreatetime(cursor.getString(cursor.getColumnIndex("CREATETIME")));
             item.setContent(cursor.getString(cursor.getColumnIndex("CONTENT")));
+            item.setDirection(cursor.getInt(cursor.getColumnIndex("DIRECTION")));
 
             cursor.close();
         }
@@ -113,9 +118,9 @@ public class MessageDBManager {
         return MessageEntity;
     }
 
-    public List<MessageEntity> findByRecvAndSender(String receiver, String sender, int direction) {
+    public List<MessageEntity> findByRecvAndSender(String receiver, String sender) {
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
-        Cursor cursor = db.query(TBNAME, null, "SENDERNAME=?ANDRECEIVERNAME=?",
+        Cursor cursor = db.query(TBNAME, null, "SENDERNAME=? AND RECEIVERNAME=?",
                 new String[]{sender,receiver}, null, null, null);
 
         List<MessageEntity> list = new ArrayList<>();
@@ -129,7 +134,7 @@ public class MessageDBManager {
             item.setReceivername(cursor.getString(cursor.getColumnIndex("RECEIVERNAME")));
             item.setCreatetime(cursor.getString(cursor.getColumnIndex("CREATETIME")));
             item.setContent(cursor.getString(cursor.getColumnIndex("CONTENT")));
-            item.setDirection(direction);
+            item.setDirection(cursor.getInt(cursor.getColumnIndex("DIRECTION")));
 
             list.add(item);
 
@@ -143,7 +148,7 @@ public class MessageDBManager {
                 item1.setReceivername(cursor.getString(cursor.getColumnIndex("RECEIVERNAME")));
                 item1.setCreatetime(cursor.getString(cursor.getColumnIndex("CREATETIME")));
                 item1.setContent(cursor.getString(cursor.getColumnIndex("CONTENT")));
-                item1.setDirection(direction);
+                item.setDirection(cursor.getInt(cursor.getColumnIndex("DIRECTION")));
 
                 list.add(item1);
             }

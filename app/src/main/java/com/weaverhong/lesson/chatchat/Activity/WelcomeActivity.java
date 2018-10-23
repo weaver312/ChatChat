@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.weaverhong.lesson.chatchat.DB.MessageDBManager;
 import com.weaverhong.lesson.chatchat.Datalabs.ContactLab;
+import com.weaverhong.lesson.chatchat.Entity.MessageEntity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
@@ -34,6 +36,7 @@ public class WelcomeActivity extends Activity {
         // 注册之后，就可以在MyReceiver中弹出Dialog，对intentFilter的Action及时做出反应，比较轻量
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.weaverhong.lesson.chatchat.addfriend");
+        intentFilter.addAction("com.weaverhong.lesson.chatchat.newmessage");
         registerReceiver(myReceiver,intentFilter);
 
         // 这里检查是否登录过，登录状态可通过String的Token存放在SharedPreference中
@@ -96,11 +99,12 @@ public class WelcomeActivity extends Activity {
             Bundle bundle = intent.getExtras();
             // 先处理response，看一下是哪种（那五种presence-xml信息里面的哪一种）
             String response = bundle.getString("response");
-            Log.e("MYLOG7", "broadcast received:"+response);
+            // Log.e("MYLOG7", "broadcast received:"+response);
             // text_response.setText(response);
             // 这里非空才表示要处理的是加好友的presence信息
             // 因为response空表示这是普通的上下线行为
             if (response.equals("requestfriend")) {
+                Log.e("BROADCAST RECEIVED", "WelcomeActivity, request friend, " + bundle.getString("fromName"));
                 String acceptAdd = bundle.getString("acceptAdd");
                 String alertName = bundle.getString("fromName");
                 String alertSubName = "";
@@ -124,6 +128,28 @@ public class WelcomeActivity extends Activity {
                     // Alertdialog is not allowed using here, INSIDE a broadcast intent receiver.
                     // the former edition can be found on Github
                 }
+            } else if (response.equals("message")) {
+                Log.e("BROADCAST RECEIVED", "WelcomeActivity, message");
+                // Only message received are processed. Message sent is not listened
+                String msgtranid = bundle.getString("MSGTRANID");
+                String sendername= bundle.getString("SENDERNAME");
+                String receivername = bundle.getString("RECEIVERNAME");
+                String createtime = bundle.getString("CREATETIME");
+                String content = bundle.getString("CONTENT");
+
+                MessageEntity item = new MessageEntity();
+                item.setMsgtranid(msgtranid);
+                item.setSendername(sendername);
+                item.setReceivername(receivername);
+                item.setCreatetime(createtime);
+                item.setContent(content);
+                // 1 is receive message
+                item.setDirection(1);
+
+                // insert into database
+                MessageDBManager messageDBManager = new MessageDBManager(context);
+                messageDBManager.add(item);
+
             }
         }
     }

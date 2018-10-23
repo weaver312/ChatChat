@@ -8,11 +8,13 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.jiveproperties.JivePropertiesManager;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
@@ -30,9 +32,9 @@ public class OpenfireConnector {
     public static AbstractXMPPConnection sAbstractXMPPConnection;
     public static final String IP = "192.168.191.1";
     public static final String DOMAIN = "192.168.191.1";
-    private static ChatManager sChatManager;
+    // private static ChatManager sChatManager;
     private static AccountManager accountManager;
-    public static String username;
+    public static String username = "";
 
     static {
         try {
@@ -55,7 +57,6 @@ public class OpenfireConnector {
                 .setDebuggerEnabled(true)
                 .build();
         sAbstractXMPPConnection = new XMPPTCPConnection(config);
-        getRoster().setSubscriptionMode(Roster.SubscriptionMode.manual);
         sAbstractXMPPConnection.connect();
     }
 
@@ -63,30 +64,41 @@ public class OpenfireConnector {
         sAbstractXMPPConnection.disconnect();
     }
 
-    public static boolean login(String username, String password) throws Exception {
+    public static boolean login(String username1, String password) throws Exception {
         if (!sAbstractXMPPConnection.isConnected())
             buildConn();
-        sAbstractXMPPConnection.login(username, password);
+        sAbstractXMPPConnection.login(username1, password);
         // sChatManager.addIncomingListener(new IncomingChatMessageListener() {
         //     @Override
         //     public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
         //
         //     }
         // });
-        boolean fuckyou = sAbstractXMPPConnection.isAuthenticated();
-        return fuckyou;
+        boolean you = sAbstractXMPPConnection.isAuthenticated();
+        if (you) {
+            username = username1;
+            // getRoster().setSubscriptionMode(Roster.SubscriptionMode.reject_all);
+        }
+        return you;
     }
 
     public static void sendmessage(String address, String message) throws Exception {
-        EntityBareJid jid = JidCreate.entityBareFrom(address);
-        Chat chat = sChatManager.chatWith(jid);
+        EntityBareJid jid = JidCreate.entityBareFrom(address+"@"+DOMAIN);
+        Chat chat = getChatManager().chatWith(jid);
         // 比较简单的默认发送方式
         chat.send(message);
+    }
+
+    public static void sendmessage(String address, String message, Map<String, String> args) throws Exception {
+        EntityBareJid jid = JidCreate.entityBareFrom(address);
+        Chat chat = getChatManager().chatWith(jid);
         // 自定义的，比较复杂的方式
-        // Message msg = new Message();
-        // msg.setBody("Hello world again!");
-        // JivePropertiesManager.addProperty(msg, "favoriteColor", "red");
-        // chat.send(msg);
+        Message msg = new Message();
+        msg.setBody(message);
+        for (Map.Entry<String, String> e: args.entrySet()) {
+            JivePropertiesManager.addProperty(msg, e.getKey(), e.getValue());
+        }
+        chat.send(msg);
     }
 
     public static boolean isAuthenticated() {
@@ -144,5 +156,9 @@ public class OpenfireConnector {
             Log.e("MYLOG8","add friend fail");
             return false;
         }
+    }
+
+    private static ChatManager getChatManager() {
+        return ChatManager.getInstanceFor(sAbstractXMPPConnection);
     }
 }

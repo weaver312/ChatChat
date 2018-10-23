@@ -24,6 +24,7 @@ import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smackx.search.ReportedData;
@@ -72,45 +73,45 @@ public class MainFragment_Contacts extends Fragment {
                 final EditText editText = new EditText(getActivity());
 
                 new AlertDialog.Builder(getActivity()).setTitle("Search a friend")
-                    .setView(editText)
-                    .setPositiveButton("search", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            String input = editText.getText().toString();
-                            if (input.equals("")) {
-                                Toast.makeText(getActivity(), "empty input! no search executed" + input, Toast.LENGTH_LONG).show();
-                            } else {
-                                try {
-                                    List<String> result = searchUser(editText.getText().toString());
-                                    String [] resultarray = new String[result.size()];
-                                    result.toArray(resultarray);
-                                    AlertDialog alertDialog = new AlertDialog
-                                            .Builder(getActivity())
-                                            .setItems(resultarray, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    // 注意这里的下标从0开始，index = [0 ~ (size-1)]
-                                                    try {
-                                                        Toast.makeText(getActivity(), "try to send a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
-                                                        addFriend(OpenfireConnector.getRoster(), resultarray[which], resultarray[which]);
-                                                        Toast.makeText(getActivity(), "have sent a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
-                                                        Thread.sleep(300);
-                                                        ContactLab.refreshdata();
-                                                        updateUI();
-                                                    } catch (Exception e) {
-                                                        // 这里试一下这个getLocalizedMessage
-                                                        Log.e("MYLOG9",e.toString());
+                        .setView(editText)
+                        .setPositiveButton("search", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                String input = editText.getText().toString();
+                                if (input.equals("")) {
+                                    Toast.makeText(getActivity(), "empty input! no search executed" + input, Toast.LENGTH_LONG).show();
+                                } else {
+                                    try {
+                                        List<String> result = searchUser(editText.getText().toString());
+                                        String[] resultarray = new String[result.size()];
+                                        result.toArray(resultarray);
+                                        AlertDialog alertDialog = new AlertDialog
+                                                .Builder(getActivity())
+                                                .setItems(resultarray, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        // 注意这里的下标从0开始，index = [0 ~ (size-1)]
+                                                        try {
+                                                            Toast.makeText(getActivity(), "try to send a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
+                                                            addFriend(OpenfireConnector.getRoster(), resultarray[which], resultarray[which]);
+                                                            Toast.makeText(getActivity(), "have sent a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
+                                                            Thread.sleep(300);
+                                                            ContactLab.refreshdata();
+                                                            updateUI();
+                                                        } catch (Exception e) {
+                                                            // 这里试一下这个getLocalizedMessage
+                                                            Log.e("MYLOG9", e.toString());
+                                                        }
                                                     }
-                                                }
-                                            }).create();
-                                    alertDialog.show();
-                                } catch (Exception e) {
-                                    Log.e("MYLOG4", e.toString());
+                                                }).create();
+                                        alertDialog.show();
+                                    } catch (Exception e) {
+                                        Log.e("MYLOG4", e.toString());
+                                    }
                                 }
                             }
-                        }
-                    })
-                    .setNegativeButton("cancel", null)
-                    .show();
+                        })
+                        .setNegativeButton("cancel", null)
+                        .show();
             }
         });
 
@@ -154,7 +155,7 @@ public class MainFragment_Contacts extends Fragment {
         }
     }
 
-    private class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    private class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView mUserTextView;
         private Button mButton;
@@ -181,14 +182,16 @@ public class MainFragment_Contacts extends Fragment {
         public void bind(ContactListItem item) {
             mItem = item;
             mUserTextView.setText(mItem.getUsername());
-            mButton.setVisibility(mItem.isIffriend()?View.INVISIBLE:View.VISIBLE);
+            mButton.setVisibility(mItem.isIffriend() ? View.INVISIBLE : View.VISIBLE);
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // balabala
+
+
                     try {
                         // 添加好友行为，调用addFriend函数
-                        addFriend(getRoster(),mItem.getUsername(),mItem.getUsername());
+                        addFriend(getRoster(), mItem.getUsername(), mItem.getUsername());
                         // 检查是否添加完了，或者updateUI并传一个值，使仅update这个Holder的UI
                         // if (getRoster().getEntry((EntityBareJid) JidCreate.from(mItem.getUsername()+"@"+IP)).getName()==null)
                         //     // 添加失败
@@ -210,7 +213,10 @@ public class MainFragment_Contacts extends Fragment {
 
     private class ContactAdapter extends RecyclerView.Adapter<MainFragment_Contacts.ContactHolder> {
         private List<ContactListItem> list;
-        public ContactAdapter(List<ContactListItem> list) { this.list = list; }
+
+        public ContactAdapter(List<ContactListItem> list) {
+            this.list = list;
+        }
 
         @Override
         public MainFragment_Contacts.ContactHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -259,7 +265,7 @@ public class MainFragment_Contacts extends Fragment {
             }
             // Log.e("MYLOG6", ""+OpenfireConnector.sAbstractXMPPConnection.isConnected());
             // Log.e("MYLOG6", ""+ OpenfireConnector.sAbstractXMPPConnection.isAuthenticated());
-            Log.e("MYLOG6", ""+list.size());
+            Log.e("MYLOG6", "" + list.size());
             Log.e("MYLOG6", username);
             // Log.e("MYLOG6", list.toString());
         } catch (Exception e) {
@@ -270,16 +276,35 @@ public class MainFragment_Contacts extends Fragment {
 
     public boolean addFriend(Roster roster, String friendName, String name) throws Exception {
         try {
-            EntityBareJid jid = JidCreate.entityBareFrom(friendName.trim()+"@"+ DOMAIN);
+            // 本部分修改自：https://blog.csdn.net/EricFantastic/article/details/48311871
+            // 首先，回复对方的好友请求
+            Presence presenceRes = new Presence(Presence.Type.subscribed);
+            presenceRes.setTo(name + "@" + DOMAIN);
+            OpenfireConnector.sAbstractXMPPConnection.sendStanza(presenceRes);
+
             // 这里因为版本原因，网上原先的解决方法第三个参数用null也可，表示不分组的朋友
             // 通过管理员添加貌似也可null
-            // 但是smack现在好像必须加分组了，null就添加不上
-            roster.createEntry(jid, name, new String[] {"friends"});
-            Log.e("MYLOG8","add friend success");
+            // 但是smack现在好像必须加分组了，null就添加不行了
+
+            // 第二步，将对面添加到自己的朋友分组里面
+            EntityBareJid jid = JidCreate.entityBareFrom(friendName.trim() + "@" + DOMAIN);
+            roster.createEntry(jid, name, new String[]{"friends"});
+            Log.e("MYLOG8", "add friend success");
             return true;
         } catch (XMPPException e) {
-            Log.e("MYLOG8",e.toString());
-            Log.e("MYLOG8","add friend fail");
+            Log.e("MYLOG8", e.toString());
+            Log.e("MYLOG8", "add friend fail");
+            return false;
+        }
+    }
+
+    public boolean refuseFriend(Roster roster, String friendName, String name) {
+        try {
+            Presence presenceRes = new Presence(Presence.Type.unsubscribe);
+            presenceRes.setTo(friendName + "@" + DOMAIN);
+            OpenfireConnector.sAbstractXMPPConnection.sendStanza(presenceRes);
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }

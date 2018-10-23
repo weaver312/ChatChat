@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.weaverhong.lesson.chatchat.Activity.ChatActivity;
 import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 import com.weaverhong.lesson.chatchat.Datalabs.ChatsLab;
+import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
 import java.util.List;
@@ -92,7 +93,7 @@ public class MainFragment_Chats extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = ChatActivity.newIntent(getActivity(), mItem);
+            Intent intent = ChatActivity.newIntent(getActivity(), mItem, OpenfireConnector.username);
             startActivity(intent);
         }
 

@@ -65,21 +65,29 @@ public class MainActivity extends AppCompatActivity {
         MainFragment_Contacts frag1 = MainFragment_Contacts.newInstance();
         MainFragment_Profile frag2 = MainFragment_Profile.newInstance();
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-            @Override public void onPageScrollStateChanged(int state) { }
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+
             @Override
             public void onPageSelected(int position) {
                 if (position == 1) {
                     try {
                         ContactLab.refreshdata();
                         frag1.updateUI();
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }
                 mBottomNavigationView.getMenu().getItem(position).setChecked(true);
             }
         });
-        FragmentPagerAdapter mPagerAdapter=new FragmentPagerAdapter(getSupportFragmentManager()) {
-            @Override public Fragment getItem(int position) {
+        FragmentPagerAdapter mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
                         return frag0;
@@ -90,7 +98,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return null;
             }
-            @Override public int getCount() {
+
+            @Override
+            public int getCount() {
                 return 3;
             }
         };
@@ -108,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             ContactLab.refreshdata();
                             frag1.updateUI();
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                         mViewPager.setCurrentItem(1, false);
                         break;
                     case R.id.action_navigation_profile:

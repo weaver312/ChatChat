@@ -52,7 +52,7 @@
                 app:srcCompat="@drawable/person" />
 
             <TextView
-                android:id="@+id/user_chatwith"
+                android:id="@+id/user_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -69,7 +69,7 @@
                 app:layout_constraintVertical_bias="0.749" />
 
             <TextView
-                android:id="@+id/user_delete"
+                android:id="@+id/user_chatwith"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
