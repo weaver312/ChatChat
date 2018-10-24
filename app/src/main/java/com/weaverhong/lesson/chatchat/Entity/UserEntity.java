@@ -2,6 +2,7 @@ package com.weaverhong.lesson.chatchat.Entity;
 
 public class UserEntity {
     int id;
+    // String owner;
     String jid;
     String username;
     int ifadded;
@@ -38,21 +39,22 @@ public class UserEntity {
         this.ifadded = ifadded;
     }
 
-    public UserEntity(int id, String jid, String username, int ifadded) {
-
-        this.id = id;
-        this.jid = jid;
-        this.username = username;
-        this.ifadded = ifadded;
-    }
-
-    public UserEntity(String jid, String username, int ifadded) {
-
-        this.jid = jid;
-        this.username = username;
-        this.ifadded = ifadded;
-    }
+    // public String getOwner() {
+    //     return owner;
+    // }
+    //
+    // public void setOwner(String owner) {
+    //     this.owner = owner;
+    // }
 
     public UserEntity() {
     }
+
+    // public UserEntity(int id, String owner, String jid, String username, int ifadded) {
+    //     this.id = id;
+    //     this.owner = owner;
+    //     this.jid = jid;
+    //     this.username = username;
+    //     this.ifadded = ifadded;
+    // }
 }

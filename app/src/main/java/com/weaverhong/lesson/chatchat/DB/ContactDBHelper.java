@@ -30,12 +30,14 @@ public class ContactDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE "+ TB_NAME_CONTACTS +"" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "OWNER TEXT," +
                 // "MSGTRANID TEXT UNIQUE," +
                 "JID TEXT UNIQUE," +
                 "USERNAME TEXT UNIQUE," +
                 "IFADDED INTEGER)");
         db.execSQL("CREATE TABLE "+ TB_NAME_MESSAGE +"" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "OWNER TEXT," +
                 // "MSGTRANID TEXT UNIQUE," +
                 "MSGTRANID TEXT," +
                 "SENDERNAME TEXT," +

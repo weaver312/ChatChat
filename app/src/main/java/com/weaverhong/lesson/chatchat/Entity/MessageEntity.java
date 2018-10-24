@@ -2,6 +2,7 @@ package com.weaverhong.lesson.chatchat.Entity;
 
 public class MessageEntity {
     private int id;
+    // private String owner;
     private String msgtranid;
     private String sendername;
     private String receivername;
@@ -66,24 +67,26 @@ public class MessageEntity {
         this.content = content;
     }
 
+    // public String getOwner() {
+    //     return owner;
+    // }
+    //
+    // public void setOwner(String owner) {
+    //     this.owner = owner;
+    // }
+
     public MessageEntity() {
 
     }
 
-    public MessageEntity(String msgtranid, String sendername, String receivername, String createtime, String content) {
-        this.msgtranid = msgtranid;
-        this.sendername = sendername;
-        this.receivername = receivername;
-        this.createtime = createtime;
-        this.content = content;
-    }
-
-    public MessageEntity(int id, String msgtranid, String sendername, String receivername, String createtime, String content) {
-        this.id = id;
-        this.msgtranid = msgtranid;
-        this.sendername = sendername;
-        this.receivername = receivername;
-        this.createtime = createtime;
-        this.content = content;
-    }
+    // public MessageEntity(int id, String owner, String msgtranid, String sendername, String receivername, String createtime, String content, int direction) {
+    //     this.id = id;
+    //     this.owner = owner;
+    //     this.msgtranid = msgtranid;
+    //     this.sendername = sendername;
+    //     this.receivername = receivername;
+    //     this.createtime = createtime;
+    //     this.content = content;
+    //     this.direction = direction;
+    // }
 }

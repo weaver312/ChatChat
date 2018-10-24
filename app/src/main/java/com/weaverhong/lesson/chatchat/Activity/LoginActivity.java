@@ -1,21 +1,22 @@
 package com.weaverhong.lesson.chatchat.Activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.weaverhong.lesson.chatchat.BaseActivity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends BaseActivity {
 
     EditText mEditTextusername;
     EditText mEditTextpassword;
@@ -230,6 +231,31 @@ public class LoginActivity extends Activity {
                 startActivityForResult(intent, 1);
             }
         });
+    }
+
+
+    private long exitTime = 0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void exit() {
+        if ((System.currentTimeMillis() - exitTime) > 2000) {
+            Toast.makeText(getApplicationContext(),
+                    "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
+        } else {
+            Intent intent = new Intent();
+            intent.setAction(OpenfireConnector.EXIT_ALL);
+            sendBroadcast(intent);
+            finish();
+        }
     }
 
     @Override

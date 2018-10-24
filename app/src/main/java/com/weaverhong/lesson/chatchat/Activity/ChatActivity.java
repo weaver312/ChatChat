@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.weaverhong.lesson.chatchat.BaseAppCompatActivity;
 import com.weaverhong.lesson.chatchat.DB.MessageDBManager;
 import com.weaverhong.lesson.chatchat.Entity.MessageEntity;
 import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
@@ -28,7 +29,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends BaseAppCompatActivity {
 
     private Context mContext;
     String leftuser;
@@ -56,6 +57,13 @@ public class ChatActivity extends AppCompatActivity {
         this.mContext = this;
         super.onCreate(onSavedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(getIntent().getStringExtra(EXTRA_USERNAME));
+        // getActionBar().setTitle(getIntent().getStringExtra(EXTRA_USERNAME));
+        // getActionBar().setHomeButtonEnabled(true);
 
         messageDBManager = new MessageDBManager(this);
         mRecyclerView = findViewById(R.id.chat_recyclerview);

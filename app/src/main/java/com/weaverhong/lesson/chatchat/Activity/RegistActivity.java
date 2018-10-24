@@ -1,6 +1,5 @@
 package com.weaverhong.lesson.chatchat.Activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,10 +13,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.weaverhong.lesson.chatchat.BaseActivity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
-public class RegistActivity extends Activity {
+public class RegistActivity extends BaseActivity {
 
     EditText mEditTextusername;
     EditText mEditTextpassword;

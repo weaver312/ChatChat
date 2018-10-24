@@ -4,15 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.weaverhong.lesson.chatchat.BaseAppCompatActivity;
 import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
-public class UserActivity extends AppCompatActivity {
+public class UserActivity extends BaseAppCompatActivity {
 
     TextView mUsername;
     TextView mChatwith;

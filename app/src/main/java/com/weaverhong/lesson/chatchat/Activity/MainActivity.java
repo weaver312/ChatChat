@@ -10,17 +10,19 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.weaverhong.lesson.chatchat.BaseAppCompatActivity;
 import com.weaverhong.lesson.chatchat.Datalabs.ContactLab;
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Chats;
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Contacts;
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Profile;
+import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseAppCompatActivity {
 
     BottomNavigationView mBottomNavigationView;
     ViewPager mViewPager;
@@ -147,6 +149,32 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
+
+    private long exitTime = 0;
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void exit() {
+        if ((System.currentTimeMillis() - exitTime) > 2000) {
+            Toast.makeText(getApplicationContext(),
+                    "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
+        } else {
+            OpenfireConnector.breakConn();
+            Intent intent = new Intent();
+            intent.setAction(OpenfireConnector.EXIT_ALL);
+            sendBroadcast(intent);
+            finish();
+        }
+    }
+
 }

@@ -55,6 +55,7 @@ public class OpenfireConnector {
     public static final String XMLTAG_TIME = "TIMESTAMP";
     public static final String IP = "192.168.191.1";
     public static final String DOMAIN = "192.168.191.1";
+    public static final String EXIT_ALL = "com.weaverhong.chatchat.EXIT_ALL";
 
     public static AbstractXMPPConnection sAbstractXMPPConnection;
     private static AccountManager accountManager;

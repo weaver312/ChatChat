@@ -1,14 +1,14 @@
 package com.weaverhong.lesson.chatchat.Activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.weaverhong.lesson.chatchat.BaseActivity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
-public class WelcomeActivity extends Activity {
+public class WelcomeActivity extends BaseActivity {
 
     // MyReceiver myReceiver = new MyReceiver();
 

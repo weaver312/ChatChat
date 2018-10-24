@@ -1,6 +1,7 @@
 package com.weaverhong.lesson.chatchat.Fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.weaverhong.lesson.chatchat.DB.ContactDBManager;
+import com.weaverhong.lesson.chatchat.DB.MessageDBManager;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
@@ -21,7 +24,7 @@ public class MainFragment_Profile extends Fragment {
     TextView mUsernameTextview;
     TextView mRegisttimeTextview;
     ListView mProfileListview;
-    private static String[] liststr = {"Edit password","Delete this profile","About","Quit"};
+    private static String[] liststr = {"Edit password","About","Quit & Delete All Date"};
 
     public static MainFragment_Profile newInstance() {
         Bundle args = new Bundle();
@@ -56,8 +59,8 @@ public class MainFragment_Profile extends Fragment {
                     case 1:
                         break;
                     case 2:
-                        break;
-                    case 3:
+                        // disconnect connection to server
+                        OpenfireConnector.breakConn();
                         // Quit login
                         // delete from SharedPreference
                         SharedPreferences sp = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
@@ -67,9 +70,16 @@ public class MainFragment_Profile extends Fragment {
                         editor.remove("password");
                         editor.clear();
                         editor.commit();
-                        // disconnect connection to server
-                        OpenfireConnector.breakConn();
-                        getActivity().finish();
+                        // clear database
+                        ContactDBManager contactDBManager = new ContactDBManager(getActivity());
+                        contactDBManager.deleteAll();
+                        MessageDBManager messageDBManager = new MessageDBManager(getActivity());
+                        messageDBManager.deleteAll();
+
+
+                        Intent intent = new Intent();
+                        intent.setAction(OpenfireConnector.EXIT_ALL);
+                        getActivity().sendBroadcast(intent);
                         break;
                 }
             }
