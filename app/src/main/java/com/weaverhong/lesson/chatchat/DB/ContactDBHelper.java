@@ -5,7 +5,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class MessageDBHelper extends SQLiteOpenHelper {
+public class ContactDBHelper extends SQLiteOpenHelper {
 
     // DBOpenHelper主要是三个字段：版本、数据库名、表名
     private static final int VERSION = 1;
@@ -13,15 +13,16 @@ public class MessageDBHelper extends SQLiteOpenHelper {
     private static final String TB_NAME_CONTACTS = "table_contacts";
     private static final String TB_NAME_MESSAGE = "table_chats";
 
-    public MessageDBHelper(Context context) {
+
+    public ContactDBHelper(Context context) {
         this(context, DB_NAME, null, VERSION, null);
     }
 
-    public MessageDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    public ContactDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
-    public MessageDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler) {
+    public ContactDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler) {
         super(context, name, factory, version, null);
     }
 

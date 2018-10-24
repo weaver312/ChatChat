@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.weaverhong.lesson.chatchat.DB.MessageDBManager;
 import com.weaverhong.lesson.chatchat.Entity.MessageEntity;
@@ -24,10 +23,10 @@ import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -38,6 +37,8 @@ public class ChatActivity extends AppCompatActivity {
     MyReceiver myReceiver;
 
     private static final String EXTRA_CHATID = "com.weaverhong.chatchat.chatid";
+    private static final String EXTRA_USERNAME = "com.weaverhong.chatchat.username_right";
+
     RecyclerView mRecyclerView;
     EditText mEditText;
     Button mButton;
@@ -46,14 +47,12 @@ public class ChatActivity extends AppCompatActivity {
     public static Intent newIntent(Context packageContext, ChatListItem item, String username2) {
         Intent intent = new Intent(packageContext, ChatActivity.class);
         intent.putExtra(EXTRA_CHATID, item.getUser());
-        intent.putExtra("username", username2);
+        intent.putExtra(EXTRA_USERNAME, username2);
         return intent;
     }
 
     @Override
     protected void onCreate(Bundle onSavedInstanceState) {
-        Log.e("ChatActivity","Chat Activity onCreate!");
-
         this.mContext = this;
         super.onCreate(onSavedInstanceState);
         setContentView(R.layout.activity_chat);
@@ -63,45 +62,51 @@ public class ChatActivity extends AppCompatActivity {
         mEditText = findViewById(R.id.chat_edittext);
         mButton = findViewById(R.id.chat_send);
 
-        Intent ii = getIntent();
         leftuser = getIntent().getStringExtra(EXTRA_CHATID);
-        rightuser = getIntent().getStringExtra("username");
+        rightuser = getIntent().getStringExtra(EXTRA_USERNAME);
 
-        Log.e("LEFTUSER", leftuser==null?"":leftuser);
-        Log.e("RIGHTUSER", rightuser==null?"":rightuser);
+        // Log.e("LEFTUSER", leftuser==null?"":leftuser);
+        // Log.e("RIGHTUSER", rightuser==null?"":rightuser);
 
+        // 发送消息的逻辑
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Editable edittext = mEditText.getText();
-                if (edittext != null && edittext.length() > 0 && leftuser != null && rightuser != null) {
+                if (edittext != null && edittext.length() > 0 && leftuser != null && rightuser != null
+                        && !leftuser.equals("") && !rightuser.equals("")) {
                     try {
                         String text = edittext.toString();
 
-                        Long time = System.currentTimeMillis();
-                        Map<String, String> map = new HashMap<>();
-                        map.put("CREATETIME", "" + time);
+                        // Long time = System.currentTimeMillis();
+                        // Map<String, String> map = new HashMap<>();
+                        // map.put(OpenfireConnector.XMLTAG_TIME, "" + time);
+
+                        // Log.e("ChatActivity", "trying to send message");
                         OpenfireConnector.sendmessage(leftuser, text);
 
-                        MessageEntity item = new MessageEntity();
-                        item.setDirection(0);
-                        item.setReceivername(leftuser);
-                        item.setSendername(rightuser);
-                        item.setContent(text);
-                        item.setCreatetime("" + time);
-                        item.setMsgtranid("null");
-                        messageDBManager.add(item);
+                        // Log.e("ChatActivity", "trying to store message");
+                        // have to set MSGTRANSID to null, trying to use other method:
+                        // MessageEntity item = new MessageEntity();
+                        // item.setDirection(0);
+                        // item.setReceivername(leftuser);
+                        // item.setSendername(rightuser);
+                        // item.setContent(text);
+                        // item.setCreatetime("" + time);
+                        // item.setMsgtranid("null");
+                        // messageDBManager.add(item);
+
+                        Log.e("ChatActivity", "trying to update UI and make input empty");
                         updateUI();
                         mEditText.setText("");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
-                    Toast.makeText(mContext, "Empty input!", Toast.LENGTH_SHORT);
+                    // Toast.makeText(mContext, "Empty input!", Toast.LENGTH_SHORT);
                 }
             }
         });
-
         mRecyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
 
         IntentFilter intentFilter = new IntentFilter();
@@ -114,28 +119,34 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         Log.e("ChatActivity","Chat Activity onDestroy!");
-        unregisterReceiver(myReceiver);
+        // unregisterReceiver(myReceiver);
         super.onDestroy();
     }
 
     public void updateUI() {
 
-        // important:
+        // get new messagelist from DB
         List<MessageEntity> list = messageDBManager.findByRecvAndSender(leftuser, rightuser);
         list.addAll(messageDBManager.findByRecvAndSender(rightuser, leftuser));
+        // sort in send time
         list.sort(new Comparator<MessageEntity>() {
             @Override
             public int compare(MessageEntity o1, MessageEntity o2) {
                 return o1.getCreatetime().compareTo(o2.getCreatetime());
             }
         });
+        for (MessageEntity m : list) {
+            String format = "yyyy-MM-dd HH:mm:ss";
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            m.setCreatetime(sdf.format(new Date(Long.valueOf(m.getCreatetime()))));
+            // 其实还可以加判定条件，如果是最近几天的消息，就显示为“今天”、“昨天”，等等
+        }
 
         if (mChatAdapter == null) {
             mChatAdapter = new ChatActivity.ChatAdapter(list);
             mRecyclerView.setAdapter(mChatAdapter);
         } else {
             mChatAdapter.setList(list);
-
             mChatAdapter.notifyDataSetChanged();
             mRecyclerView.smoothScrollToPosition(mChatAdapter.getItemCount());
             // 这个方法是ListView的，对于Recylcler，只能把绑定的list倒序来实现视图倒序
@@ -194,19 +205,19 @@ public class ChatActivity extends AppCompatActivity {
         public void bind(MessageEntity item) {
             mItem = item;
             // right is sender
-            if (item.getDirection() == 0) {
+            if (item.getDirection() == OpenfireConnector.USER_RIGHT) {
                 itemView.findViewById(R.id.chat_left).setVisibility(View.INVISIBLE);
                 itemView.findViewById(R.id.chat_right).setVisibility(View.VISIBLE);
                 TextView t = (TextView) itemView.findViewById(R.id.right_message);
-                t.setText(item.getContent());
                 TextView timet = (TextView) itemView.findViewById(R.id.right_time);
+                t.setText(item.getContent());
                 timet.setText(item.getCreatetime());
             } else {
-                itemView.findViewById(R.id.chat_right).setVisibility(View.INVISIBLE);
                 itemView.findViewById(R.id.chat_left).setVisibility(View.VISIBLE);
+                itemView.findViewById(R.id.chat_right).setVisibility(View.INVISIBLE);
                 TextView t = (TextView) itemView.findViewById(R.id.left_message);
-                t.setText(item.getContent());
                 TextView timet = (TextView) itemView.findViewById(R.id.left_time);
+                t.setText(item.getContent());
                 timet.setText(item.getCreatetime());
             }
         }
@@ -217,7 +228,7 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            Log.e("BROADCAST RECEIVED", "ChatActivity");
+            Log.e("ChatActivity-MyReceiver", "BROADCAST RECEIVED");
             // Bundle bundle = intent.getExtras();
             // Only message received are processed. Message sent is not listened
             // String msgtranid = bundle.getString("MSGTRANID");
@@ -246,8 +257,6 @@ public class ChatActivity extends AppCompatActivity {
             // sendBroadcast(messageintent);
 
             // maybe send a intent to mainactivity to refresh chat data
-
-
             updateUI();
         }
     }

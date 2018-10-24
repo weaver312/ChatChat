@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.weaverhong.lesson.chatchat.Datalabs.ContactLab;
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Chats;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView mBottomNavigationView;
     ViewPager mViewPager;
+    Context mContext;
 
     public static Intent newIntent(Context packageContext) {
         Intent intent = new Intent(packageContext, MainActivity.class);
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         setContentView(R.layout.activity_main);
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.main_fragmentcontainer);
@@ -45,10 +48,8 @@ public class MainActivity extends AppCompatActivity {
         // link: https://www.cnblogs.com/Peter-Chen/p/6421354.html
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.toolbar_logo);
-
         // ActionBar actionBar = getSupportActionBar();
         // actionBar.setDisplayHomeAsUpEnabled(true);
-
 
         mBottomNavigationView = findViewById(R.id.navigation_container);
         mViewPager = findViewById(R.id.viewpager);
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 if (position == 1) {
                     try {
-                        ContactLab.refreshdata();
+                        ContactLab.refreshdatalocal(getApplicationContext());
                         frag1.updateUI();
                     } catch (Exception e) {
                     }
@@ -115,11 +116,6 @@ public class MainActivity extends AppCompatActivity {
                         mViewPager.setCurrentItem(0, false);
                         break;
                     case R.id.action_navigation_friends:
-                        try {
-                            ContactLab.refreshdata();
-                            frag1.updateUI();
-                        } catch (Exception e) {
-                        }
                         mViewPager.setCurrentItem(1, false);
                         break;
                     case R.id.action_navigation_profile:
@@ -127,6 +123,28 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 return true;
+            }
+        });
+
+        mBottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_navigation_chat_list:
+                        mViewPager.setCurrentItem(0, false);
+                        break;
+                    case R.id.action_navigation_friends:
+                        ContactLab.refreshdatalocal(getApplicationContext());
+                        // 这里有点疑问，为什么Toast显示不出来，不管是getApplicationContext还是什么，好像都不行，诡谲
+                        Toast.makeText(mContext,"Updating contacts from server... please refresh more times!", Toast.LENGTH_SHORT);
+                        ContactLab.refreshdataonline(getApplicationContext());
+                        frag1.updateUI();
+                        mViewPager.setCurrentItem(1, false);
+                        break;
+                    case R.id.action_navigation_profile:
+                        mViewPager.setCurrentItem(2, false);
+                        break;
+                }
             }
         });
 

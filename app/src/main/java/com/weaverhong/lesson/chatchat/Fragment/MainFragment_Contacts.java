@@ -18,7 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.weaverhong.lesson.chatchat.Activity.UserActivity;
+import com.weaverhong.lesson.chatchat.DB.ContactDBManager;
 import com.weaverhong.lesson.chatchat.Datalabs.ContactLab;
+import com.weaverhong.lesson.chatchat.Entity.UserEntity;
 import com.weaverhong.lesson.chatchat.ListItem.ContactListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
@@ -41,6 +43,7 @@ import java.util.List;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.DOMAIN;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.getRoster;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.sAbstractXMPPConnection;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.username;
 
 public class MainFragment_Contacts extends Fragment {
 
@@ -72,7 +75,8 @@ public class MainFragment_Contacts extends Fragment {
             public void onClick(View v) {
                 final EditText editText = new EditText(getActivity());
 
-                new AlertDialog.Builder(getActivity()).setTitle("Search a friend")
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Search a friend")
                         .setView(editText)
                         .setPositiveButton("search", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -91,21 +95,27 @@ public class MainFragment_Contacts extends Fragment {
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         // 注意这里的下标从0开始，index = [0 ~ (size-1)]
                                                         try {
-                                                            Toast.makeText(getActivity(), "try to send a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
+                                                            if (resultarray[which].equals(username)) return;
+                                                            // Toast.makeText(getActivity(), "try to send a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
+                                                            // 单向发起好友请求
                                                             addFriend(OpenfireConnector.getRoster(), resultarray[which], resultarray[which]);
+                                                            // 并不添加到数据库里，也不更新视图，只告诉用户你发过了。相当于发了之后就等着就好
                                                             Toast.makeText(getActivity(), "have sent a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
-                                                            Thread.sleep(300);
-                                                            ContactLab.refreshdata();
+                                                            // 自己更新一下，确实也没什么用，就不更新了
+                                                            // ContactLab.refreshdatalocal(getActivity());
                                                             updateUI();
                                                         } catch (Exception e) {
                                                             // 这里试一下这个getLocalizedMessage
-                                                            Log.e("MYLOG9", e.toString());
+                                                            Log.e("Fragment-contacts", e.toString());
                                                         }
                                                     }
-                                                }).create();
+                                                })
+                                                .setNegativeButton("cancel", null)
+                                                .setTitle("Search Result:")
+                                                .create();
                                         alertDialog.show();
                                     } catch (Exception e) {
-                                        Log.e("MYLOG4", e.toString());
+                                        Log.e("Fragment-contacts", e.toString());
                                     }
                                 }
                             }
@@ -115,7 +125,7 @@ public class MainFragment_Contacts extends Fragment {
             }
         });
 
-        ContactLab.refreshdata();
+        ContactLab.refreshdatalocal(getContext());
         updateUI();
 
         return view;
@@ -124,18 +134,16 @@ public class MainFragment_Contacts extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ContactLab.refreshdata();
+        ContactLab.refreshdatalocal(getContext());
         updateUI();
     }
 
     public void updateUI() {
         // NOTICE:
         // always call this method before call updateUI():
-        // ContactLab.refreshdata();
+        // ContactLab.refreshdatalocal();
 
-        List<ContactListItem> list = ContactLab.mContactitems;
-
-        if (list.size() == 0) {
+        if (ContactLab.list.size() == 0) {
             view.findViewById(R.id.nocontacts).setVisibility(View.VISIBLE);
             view.findViewById(R.id.contacts_list).setVisibility(View.GONE);
             return;
@@ -145,12 +153,10 @@ public class MainFragment_Contacts extends Fragment {
         }
 
         if (mContactAdapter == null) {
-            mContactAdapter = new MainFragment_Contacts.ContactAdapter(list);
+            mContactAdapter = new MainFragment_Contacts.ContactAdapter(ContactLab.list);
             mRecyclerView.setAdapter(mContactAdapter);
         } else {
-            mContactAdapter.setList(list);
-
-            // notify data change, important
+            mContactAdapter.setList(ContactLab.list);
             mContactAdapter.notifyDataSetChanged();
         }
     }
@@ -159,6 +165,7 @@ public class MainFragment_Contacts extends Fragment {
 
         private TextView mUserTextView;
         private Button mButton;
+        private Button mButton_refuse;
 
         private ContactListItem mItem;
 
@@ -167,6 +174,7 @@ public class MainFragment_Contacts extends Fragment {
             itemView.setOnClickListener(this);
             mUserTextView = itemView.findViewById(R.id.contactlist_user);
             mButton = itemView.findViewById(R.id.contactlist_botton);
+            mButton_refuse = itemView.findViewById(R.id.contactlist_botton_refuse);
         }
 
         @Override
@@ -186,26 +194,38 @@ public class MainFragment_Contacts extends Fragment {
             mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // balabala
-
-
                     try {
-                        // 添加好友行为，调用addFriend函数
+                        // 更改好友状态为已添加
+                        UserEntity entity = new ContactDBManager(getContext()).findByUsername(mItem.getUsername());
+                        entity.setIfadded(1);
+                        new ContactDBManager(getContext()).update(entity);
+                        // 回复好友表示已同意
+                        OpenfireConnector.replyfriendapply(mItem.getUsername(), false);
+                        // 反向添加添加好友
                         addFriend(getRoster(), mItem.getUsername(), mItem.getUsername());
-                        // 检查是否添加完了，或者updateUI并传一个值，使仅update这个Holder的UI
-                        // if (getRoster().getEntry((EntityBareJid) JidCreate.from(mItem.getUsername()+"@"+IP)).getName()==null)
-                        //     // 添加失败
-                        //     ;
-                        // else {
-                        //     // 添加成功
-                        ContactLab.refreshdata();
+                        // 刷新视图
+                        ContactLab.refreshdatalocal(getContext());
+                        // 因为前面已经改为已添加，所以此时已经可以给对方发消息了，对方也确实收的到尝试发一条问候语给对方
+                        OpenfireConnector.sendmessage(mItem.getUsername(), "We're already friends!");
                         updateUI();
-                        // }
                     } catch (Exception e) {
-                        // e.printStackTrace();
+                        e.printStackTrace();
                     }
-
-
+                }
+            });
+            mButton_refuse.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        // 删除待添加好友
+                        new ContactDBManager(getContext()).delete(item.getUsername());
+                        // 回复说unsubscribe
+                        OpenfireConnector.replyfriendapply(item.getUsername(), true);
+                        ContactLab.refreshdatalocal(getContext());
+                        updateUI();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
