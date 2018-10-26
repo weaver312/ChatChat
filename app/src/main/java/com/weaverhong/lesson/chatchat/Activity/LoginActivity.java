@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.weaverhong.lesson.chatchat.BaseActivity;
+import com.weaverhong.lesson.chatchat.Activity_Autoshutdown.BaseActivity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
@@ -201,7 +201,7 @@ public class LoginActivity extends BaseActivity {
                                 editor.putString("username", username);
                                 editor.putString("password", password);
                                 editor.putLong("lastlogintime", System.currentTimeMillis());
-                                editor.commit();
+                                editor.apply();
                                 Intent intent = MainActivity.newIntent(LoginActivity.this);
                                 startActivity(intent);
                                 Looper.loop();

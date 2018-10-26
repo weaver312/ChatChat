@@ -1,13 +1,18 @@
 package com.weaverhong.lesson.chatchat.Activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.weaverhong.lesson.chatchat.BaseAppCompatActivity;
+import com.weaverhong.lesson.chatchat.Activity_Autoshutdown.BaseAppCompatActivity;
+import com.weaverhong.lesson.chatchat.DB.ContactDBManager;
 import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
@@ -44,6 +49,33 @@ public class UserActivity extends BaseAppCompatActivity {
             public void onClick(View v) {
                 Intent intent = ChatActivity.newIntent(mContext, new ChatListItem(username,""), OpenfireConnector.username);
                 startActivity(intent);
+            }
+        });
+        mDeleteuser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog alertDialog = new AlertDialog.Builder(UserActivity.this)
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // delete from local DB
+                                new ContactDBManager(mContext).delete(mChatwith.getText().toString());
+                                // delete from server
+                                try {
+                                    OpenfireConnector.deleteFriend(mChatwith.getText().toString());
+                                    Toast.makeText(mContext,"DELETE completed!", Toast.LENGTH_SHORT);
+                                } catch (Exception e) {
+                                    Log.e("UserActivity-deleteuser", e.toString());
+                                }
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialog, int which) { return; }
+                        })
+                        .setTitle("You want to DELETE " + mChatwith.getText() + " from your roster?\nYou will be reomved from his/her roster as well.")
+                        .create();
+
             }
         });
 

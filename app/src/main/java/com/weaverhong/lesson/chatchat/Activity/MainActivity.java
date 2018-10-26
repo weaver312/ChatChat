@@ -14,7 +14,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.weaverhong.lesson.chatchat.BaseAppCompatActivity;
+import com.weaverhong.lesson.chatchat.Activity_Autoshutdown.BaseAppCompatActivity;
 import com.weaverhong.lesson.chatchat.Datalabs.ContactLab;
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Chats;
 import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Contacts;
@@ -27,6 +27,10 @@ public class MainActivity extends BaseAppCompatActivity {
     BottomNavigationView mBottomNavigationView;
     ViewPager mViewPager;
     Context mContext;
+
+    MainFragment_Chats frag0;
+    MainFragment_Contacts frag1;
+    MainFragment_Profile frag2;
 
     public static Intent newIntent(Context packageContext) {
         Intent intent = new Intent(packageContext, MainActivity.class);
@@ -64,9 +68,9 @@ public class MainActivity extends BaseAppCompatActivity {
         }
 
         // final ArrayList<Fragment> fgLists=new ArrayList<>(3);
-        MainFragment_Chats frag0 = MainFragment_Chats.newInstance();
-        MainFragment_Contacts frag1 = MainFragment_Contacts.newInstance();
-        MainFragment_Profile frag2 = MainFragment_Profile.newInstance();
+        frag0 = MainFragment_Chats.newInstance();
+        frag1 = MainFragment_Contacts.newInstance();
+        frag2 = MainFragment_Profile.newInstance();
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -118,6 +122,11 @@ public class MainActivity extends BaseAppCompatActivity {
                         mViewPager.setCurrentItem(0, false);
                         break;
                     case R.id.action_navigation_friends:
+                        try {
+                            ContactLab.refreshdatalocal(getApplicationContext());
+                            frag1.updateUI();
+                        } catch (Exception e) {
+                        }
                         mViewPager.setCurrentItem(1, false);
                         break;
                     case R.id.action_navigation_profile:
@@ -149,6 +158,16 @@ public class MainActivity extends BaseAppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            ContactLab.refreshdatalocal(getApplicationContext());
+            frag1.updateUI();
+        } catch (Exception e) {
+        }
     }
 
     private long exitTime = 0;

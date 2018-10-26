@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -47,9 +47,20 @@
                     android:id="@+id/left_message"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:text="This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview. This is left textview."
-                    android:textColor="@android:color/black" />
+                    android:background="@drawable/mycorner_left"
+                    android:text="This is left."
+                    android:textColor="@android:color/black"
+                    android:paddingStart="10dp"
+                    android:paddingBottom="10dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="8dp"
+                    android:textSize="16sp"
+                    android:layout_gravity="right"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginEnd="2dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
             </LinearLayout>
 
             <android.support.v4.widget.Space
@@ -64,7 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -93,8 +104,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <LinearLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
+                android:layout_gravity="end"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
@@ -105,10 +117,20 @@
                     android:id="@+id/right_message"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorChat"
-                    android:text="This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview. This is right textview."
-                    android:textColor="@android:color/black" />
-            </LinearLayout>
+                    android:background="@drawable/mycorner_right"
+                    android:paddingStart="10dp"
+                    android:paddingBottom="10dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="8dp"
+                    android:text="This is right."
+                    android:layout_gravity="right"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </android.support.constraint.ConstraintLayout>
         </LinearLayout>
     </LinearLayout>
 

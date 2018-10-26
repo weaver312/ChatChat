@@ -94,7 +94,31 @@ public class MessageDBManager {
         }
         db.close();
         return rateList;
+    }
 
+    public List<MessageEntity> listAllByGroup() {
+        List<MessageEntity> rateList = null;
+        SQLiteDatabase db = mDBHelper.getReadableDatabase();
+        Cursor cursor = db.query(TBNAME, null, null, null, null, null, null);
+        if (cursor != null) {
+            rateList = new ArrayList<MessageEntity>();
+            while (cursor.moveToNext()) {
+                MessageEntity item = new MessageEntity();
+                item.setId(cursor.getInt(cursor.getColumnIndex("ID")));
+
+                item.setMsgtranid(cursor.getString(cursor.getColumnIndex("MSGTRANID")));
+                item.setSendername(cursor.getString(cursor.getColumnIndex("SENDERNAME")));
+                item.setReceivername(cursor.getString(cursor.getColumnIndex("RECEIVERNAME")));
+                item.setCreatetime(cursor.getString(cursor.getColumnIndex("CREATETIME")));
+                item.setContent(cursor.getString(cursor.getColumnIndex("CONTENT")));
+                item.setDirection(cursor.getInt(cursor.getColumnIndex("DIRECTION")));
+
+                rateList.add(item);
+            }
+            cursor.close();
+        }
+        db.close();
+        return rateList;
     }
 
     public MessageEntity findById(int id) {

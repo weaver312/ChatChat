@@ -11,15 +11,17 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.weaverhong.lesson.chatchat.BaseAppCompatActivity;
+import com.weaverhong.lesson.chatchat.Activity_Autoshutdown.BaseAppCompatActivity;
 import com.weaverhong.lesson.chatchat.DB.MessageDBManager;
 import com.weaverhong.lesson.chatchat.Entity.MessageEntity;
+import com.weaverhong.lesson.chatchat.KeyboardShowandHideListener;
 import com.weaverhong.lesson.chatchat.ListItem.ChatListItem;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
@@ -61,7 +63,7 @@ public class ChatActivity extends BaseAppCompatActivity {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(getIntent().getStringExtra(EXTRA_USERNAME));
+        getSupportActionBar().setTitle(getIntent().getStringExtra(EXTRA_CHATID));
         // getActionBar().setTitle(getIntent().getStringExtra(EXTRA_USERNAME));
         // getActionBar().setHomeButtonEnabled(true);
 
@@ -117,6 +119,27 @@ public class ChatActivity extends BaseAppCompatActivity {
         });
         mRecyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
 
+        mEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                mRecyclerView.smoothScrollToPosition(mChatAdapter.getItemCount());
+            }
+        });
+
+        KeyboardShowandHideListener.setListener(ChatActivity.this, new KeyboardShowandHideListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int height) {
+                // Toast.makeText(ChatActivity.this, "键盘显示 高度" + height, Toast.LENGTH_SHORT).show();
+                mRecyclerView.smoothScrollToPosition(mChatAdapter.getItemCount());
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+                // Toast.makeText(ChatActivity.this, "键盘隐藏 高度" + height, Toast.LENGTH_SHORT).show();
+                mRecyclerView.smoothScrollToPosition(mChatAdapter.getItemCount());
+            }
+        });
+
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.weaverhong.lesson.chatchat.newmessage");
         registerReceiver(myReceiver,intentFilter);
@@ -153,6 +176,7 @@ public class ChatActivity extends BaseAppCompatActivity {
         if (mChatAdapter == null) {
             mChatAdapter = new ChatActivity.ChatAdapter(list);
             mRecyclerView.setAdapter(mChatAdapter);
+            mRecyclerView.smoothScrollToPosition(mChatAdapter.getItemCount());
         } else {
             mChatAdapter.setList(list);
             mChatAdapter.notifyDataSetChanged();
@@ -162,6 +186,15 @@ public class ChatActivity extends BaseAppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home)
+        {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private class ChatAdapter extends RecyclerView.Adapter<ChatHolder> {
 
@@ -213,20 +246,20 @@ public class ChatActivity extends BaseAppCompatActivity {
         public void bind(MessageEntity item) {
             mItem = item;
             // right is sender
-            if (item.getDirection() == OpenfireConnector.USER_RIGHT) {
+            if (mItem.getSendername().equals(OpenfireConnector.username)) {
                 itemView.findViewById(R.id.chat_left).setVisibility(View.INVISIBLE);
                 itemView.findViewById(R.id.chat_right).setVisibility(View.VISIBLE);
                 TextView t = (TextView) itemView.findViewById(R.id.right_message);
                 TextView timet = (TextView) itemView.findViewById(R.id.right_time);
-                t.setText(item.getContent());
-                timet.setText(item.getCreatetime());
+                t.setText(mItem.getContent());
+                timet.setText(mItem.getCreatetime());
             } else {
                 itemView.findViewById(R.id.chat_left).setVisibility(View.VISIBLE);
                 itemView.findViewById(R.id.chat_right).setVisibility(View.INVISIBLE);
                 TextView t = (TextView) itemView.findViewById(R.id.left_message);
                 TextView timet = (TextView) itemView.findViewById(R.id.left_time);
-                t.setText(item.getContent());
-                timet.setText(item.getCreatetime());
+                t.setText(mItem.getContent());
+                timet.setText(mItem.getCreatetime());
             }
         }
     }
@@ -268,4 +301,5 @@ public class ChatActivity extends BaseAppCompatActivity {
             updateUI();
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package com.weaverhong.lesson.chatchat.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,6 +24,7 @@ public class MainFragment_Chats extends Fragment {
     private RecyclerView mRecyclerView;
     private ChatAdapter mChatAdapter;
     private View view;
+    Context mContext;
 
     public static MainFragment_Chats newInstance() {
         Bundle args = new Bundle();
@@ -35,6 +37,9 @@ public class MainFragment_Chats extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mContext = getContext();
+
+        ChatsLab.refreshChats(mContext);
     }
 
     @Override
@@ -54,8 +59,9 @@ public class MainFragment_Chats extends Fragment {
         updateUI();
     }
 
-    List<ChatListItem> list = ChatsLab.mChatitems;
     private void updateUI() {
+
+        List<ChatListItem> list = ChatsLab.list;
 
         if (list.size() == 0) {
             view.findViewById(R.id.norecentchats).setVisibility(View.VISIBLE);
@@ -70,8 +76,6 @@ public class MainFragment_Chats extends Fragment {
             mRecyclerView.setAdapter(mChatAdapter);
         } else {
             mChatAdapter.setList(list);
-
-            // notify data change, important
             mChatAdapter.notifyDataSetChanged();
         }
     }

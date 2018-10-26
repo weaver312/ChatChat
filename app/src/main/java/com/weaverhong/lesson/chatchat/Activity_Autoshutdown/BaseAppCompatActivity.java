@@ -1,13 +1,15 @@
-package com.weaverhong.lesson.chatchat;
+package com.weaverhong.lesson.chatchat.Activity_Autoshutdown;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
-public class BaseActivity extends Activity {
+import com.weaverhong.lesson.chatchat.OpenfireConnector;
+
+public class BaseAppCompatActivity extends AppCompatActivity {
     private DestroyReceiver mDestroyReceiver;
 
     protected void onCreate(Bundle savedInstanceState) {

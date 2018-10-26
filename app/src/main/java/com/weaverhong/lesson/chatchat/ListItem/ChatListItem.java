@@ -4,6 +4,10 @@ public class ChatListItem {
     String user;
     String content;
 
+    public ChatListItem() {
+
+    }
+
     public String getUser() {
         return user;
     }

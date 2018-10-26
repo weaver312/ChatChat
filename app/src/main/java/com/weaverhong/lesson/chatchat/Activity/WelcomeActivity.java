@@ -3,8 +3,9 @@ package com.weaverhong.lesson.chatchat.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
-import com.weaverhong.lesson.chatchat.BaseActivity;
+import com.weaverhong.lesson.chatchat.Activity_Autoshutdown.BaseActivity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
@@ -29,34 +30,49 @@ public class WelcomeActivity extends BaseActivity {
         // 如果登录状态，则直接去MainActivity
         SharedPreferences sp = getSharedPreferences("chatchat",MODE_PRIVATE);
         Long lastlogintime = sp.getLong("lastlogintime", 0);
+
         Long currenttime = System.currentTimeMillis();
-        // 持续登录600秒
+
+        // 持续登录10分钟
         if (currenttime-lastlogintime>(1000*600)) {
             Intent intent = LoginActivity.newIntent(WelcomeActivity.this);
             startActivity(intent);
         } else {
             String username = sp.getString("username", "null");
             String password = sp.getString("password", "null");
+            if (username.equals("null") && password.equals("null")) {
+                SharedPreferences.Editor editor = sp.edit();
+                editor.remove("lastlogintime");
+                editor.clear();
+                editor.commit();
+                Intent intent = LoginActivity.newIntent(WelcomeActivity.this, username.equals("null")?"":username);
+                startActivity(intent);
+                finish();
+            }
             final boolean[] result = new boolean[1];
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        OpenfireConnector.buildConn(WelcomeActivity.this);
                         result[0] = OpenfireConnector.login(username, password);
+                        Log.e("WelcomActivity","fuck3");
+                        if (!result[0]) {
+                            // login fail, go to loginactivity
+                            Intent intent = LoginActivity.newIntent(WelcomeActivity.this, username.equals("null")?"":username);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // login success, go to main activity
+                            Intent intent = MainActivity.newIntent(WelcomeActivity.this);
+                            startActivity(intent);
+                            finish();
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }).start();
-            if (!result[0]) {
-                // login fail, go to loginactivity
-                Intent intent = LoginActivity.newIntent(WelcomeActivity.this, username.equals("null")?"":username);
-                startActivity(intent);
-            } else {
-                // login success, go to main activity
-                Intent intent = MainActivity.newIntent(WelcomeActivity.this);
-                startActivity(intent);
-            }
         }
     }
 

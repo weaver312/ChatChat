@@ -36,7 +36,6 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.net.InetAddress;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,20 +94,33 @@ public class OpenfireConnector {
                     // 1. 写数据库
                     MessageDBManager messageDBManager = new MessageDBManager(context);
                     MessageEntity item = new MessageEntity();
-                    ExtensionElement ee = message.getExtension("urn:xmpp:delay");
-                    item.setSendername(message.getFrom().toString().split("[/@]")[0]);
-                    item.setReceivername(message.getTo().toString().split("[/@]")[0]);
-                    String time_noformat = ee.toXML().toString().split("'")[3];
-                    String timestamp_str = time_noformat.split("T")[0] + " " + time_noformat.split("[T\\.]")[1];
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Long timestamp = Long.valueOf(0);
+
                     try {
+                        ExtensionElement ee = message.getExtension("urn:xmpp:delay");
+                        item.setSendername(message.getFrom().toString().split("[/@]")[0]);
+                        item.setReceivername(message.getTo().toString().split("[/@]")[0]);
+                        // System.out.println(ee.toXML().toString());
+                        String time_noformat = ee.toXML().toString().split("'")[3];
+                        String timestamp_str = time_noformat.split("T")[0] + " " + time_noformat.split("[T\\.]")[1];
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date;
                         date = df.parse(timestamp_str);
                         // 因为是东八区，所以得手动加八个小时的毫秒时间
-                        timestamp = date.getTime() + Long.valueOf(time_noformat.split("[\\.Z]")[1]) + 8*60*60*1000;
-                    } catch (ParseException e) { e.printStackTrace(); }
-                    item.setCreatetime(""+timestamp);
+                        Long timestamp = Long.valueOf(0);
+                        timestamp = date.getTime() + Long.valueOf(time_noformat.split("[\\.\\+Z]")[1]) + 8*60*60*1000;
+                        item.setCreatetime(""+timestamp);
+                    } catch (Exception e) {
+                        // e.printStackTrace();
+                        System.out.println("realtime message! no XML!");
+                        // 说明不是delay的消息，属于即时的消息，需要取出time标签才行
+                        try {
+                            System.out.println(message.toXML().toString());
+                            item.setCreatetime(message.toXML().toString().split("<name>mytimestamp</name><value type='long'>")[1].split("</value></property>")[0]);
+                        } catch (Exception ee) {
+                            ee.printStackTrace();
+                            System.out.println("FATAL MISTAKE! ");
+                        }
+                    }
                     item.setContent(message.getBody());
                     item.setDirection(USER_LEFT);
                     item.setMsgtranid(message.getStanzaId());
@@ -126,7 +138,6 @@ public class OpenfireConnector {
                     // 1. 写数据库
                     MessageDBManager messageDBManager = new MessageDBManager(context);
                     MessageEntity item = new MessageEntity();
-                    ExtensionElement ee = message.getExtension("urn:xmpp:delay");
                     item.setSendername(username);
                     item.setReceivername(message.getTo().toString().split("[/@]")[0]);
                     item.setCreatetime(System.currentTimeMillis() + "");
@@ -176,6 +187,10 @@ public class OpenfireConnector {
                 }
             });
 
+            // 设置自动重连，暂时还没尝试
+            // ReconnectionManager reconnectionManager= ReconnectionManager.getInstanceFor(sAbstractXMPPConnection);
+            // reconnectionManager.enableAutomaticReconnection();
+
             sAbstractXMPPConnection.connect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,6 +212,7 @@ public class OpenfireConnector {
         boolean you = sAbstractXMPPConnection.isAuthenticated();
         if (you) {
             username = username1;
+            Log.e("Openfireconnector-login", "SUCCESS");
             // getRoster().setSubscriptionMode(Roster.SubscriptionMode.reject_all);
         }
         return you;
@@ -229,6 +245,14 @@ public class OpenfireConnector {
         } catch (XMPPException e) {
             Log.e("Openfireconnector-addFriend",e.toString());
             return false;
+        }
+    }
+    public static void deleteFriend(String friendName) throws Exception {
+        try {
+            EntityBareJid jid = JidCreate.entityBareFrom(friendName.trim()+"@"+ DOMAIN);
+            sRoster.removeEntry(sRoster.getEntry(jid));
+        } catch (XMPPException e) {
+            Log.e("Openfireconnector-deleteFriend",e.toString());
         }
     }
     public static void regist(String username, String password, String email, String name) throws Exception{

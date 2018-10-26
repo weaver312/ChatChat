@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.weaverhong.lesson.chatchat.BaseActivity;
+import com.weaverhong.lesson.chatchat.Activity_Autoshutdown.BaseActivity;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
