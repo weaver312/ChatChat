@@ -59,11 +59,11 @@ public class UserActivity extends BaseAppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // delete from local DB
-                                new ContactDBManager(mContext).delete(mChatwith.getText().toString());
+                                new ContactDBManager(mContext).delete(mUsername.getText().toString());
                                 // delete from server
                                 try {
-                                    OpenfireConnector.deleteFriend(mChatwith.getText().toString());
-                                    Toast.makeText(mContext,"DELETE completed!", Toast.LENGTH_SHORT);
+                                    OpenfireConnector.deleteFriend(mUsername.getText().toString());
+                                    Toast.makeText(mContext,"Delete completed!", Toast.LENGTH_SHORT);
                                 } catch (Exception e) {
                                     Log.e("UserActivity-deleteuser", e.toString());
                                 }
@@ -73,9 +73,10 @@ public class UserActivity extends BaseAppCompatActivity {
                         .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                             @Override public void onClick(DialogInterface dialog, int which) { return; }
                         })
-                        .setTitle("You want to DELETE " + mChatwith.getText() + " from your roster?\nYou will be reomved from his/her roster as well.")
+                        .setTitle("Delete '" + mUsername.getText().toString() + "' from your roster?")
+                        .setView(R.layout.alertdialog_deleteuser)
                         .create();
-
+                alertDialog.show();
             }
         });
 

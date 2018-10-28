@@ -41,7 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.DOMAIN;
-import static com.weaverhong.lesson.chatchat.OpenfireConnector.getRoster;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_ASK;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_BOTH;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_FROM;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_NONE;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_TO;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.sAbstractXMPPConnection;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.username;
 
@@ -95,10 +99,10 @@ public class MainFragment_Contacts extends Fragment {
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         // 注意这里的下标从0开始，index = [0 ~ (size-1)]
                                                         try {
+                                                            // 避免把自己添加为好友
                                                             if (resultarray[which].equals(username)) return;
-                                                            // Toast.makeText(getActivity(), "try to send a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
                                                             // 单向发起好友请求
-                                                            addFriend(OpenfireConnector.getRoster(), resultarray[which], resultarray[which]);
+                                                            OpenfireConnector.addFriend(resultarray[which]);
                                                             // 并不添加到数据库里，也不更新视图，只告诉用户你发过了。相当于发了之后就等着就好
                                                             Toast.makeText(getActivity(), "have sent a friend apply to " + resultarray[which] + ".", Toast.LENGTH_SHORT).show();
                                                             // 自己更新一下，确实也没什么用，就不更新了
@@ -145,10 +149,10 @@ public class MainFragment_Contacts extends Fragment {
 
         if (ContactLab.list.size() == 0) {
             view.findViewById(R.id.nocontacts).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.contacts_list).setVisibility(View.GONE);
+            view.findViewById(R.id.contacts_list).setVisibility(View.INVISIBLE);
             return;
         } else {
-            view.findViewById(R.id.nocontacts).setVisibility(View.GONE);
+            view.findViewById(R.id.nocontacts).setVisibility(View.INVISIBLE);
             view.findViewById(R.id.contacts_list).setVisibility(View.VISIBLE);
         }
 
@@ -190,29 +194,76 @@ public class MainFragment_Contacts extends Fragment {
         public void bind(ContactListItem item) {
             mItem = item;
             mUserTextView.setText(mItem.getUsername());
-            mButton.setVisibility(mItem.isIffriend() ? View.INVISIBLE : View.VISIBLE);
-            mButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        // 更改好友状态为已添加
-                        UserEntity entity = new ContactDBManager(getContext()).findByUsername(mItem.getUsername());
-                        entity.setIfadded(1);
-                        new ContactDBManager(getContext()).update(entity);
-                        // 回复好友表示已同意
-                        OpenfireConnector.replyfriendapply(mItem.getUsername(), false);
-                        // 反向添加添加好友
-                        addFriend(getRoster(), mItem.getUsername(), mItem.getUsername());
-                        // 刷新视图
-                        ContactLab.refreshdatalocal(getContext());
-                        // 因为前面已经改为已添加，所以此时已经可以给对方发消息了，对方也确实收的到尝试发一条问候语给对方
-                        OpenfireConnector.sendmessage(mItem.getUsername(), "We're already friends!");
-                        updateUI();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            // mButton.setVisibility(mItem.isIffriend() ? View.INVISIBLE : View.VISIBLE);
+            switch (mItem.getFriendtype()) {
+                case FRIENDTYPE_BOTH:
+                    // 均是好友，不需要显示按钮，可以点击
+                    mButton.setVisibility(View.INVISIBLE);
+                    break;
+                case FRIENDTYPE_FROM:
+                    // 是待同意者，需要按钮，不可点击
+                    mButton.setText("ADD");
+                    mButton.setClickable(true);
+                    mButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                UserEntity entity = new ContactDBManager(getContext()).findByUsername(mItem.getUsername());
+                                if (entity!=null) {
+                                    // 更改好友状态为已添加
+                                    entity.setIfadded(1);
+                                    new ContactDBManager(getContext()).update(entity);
+                                } else {
+                                    // 或者：添加好友到本地数据库
+                                    entity = new UserEntity();
+                                    entity.setIfadded(1);
+                                    entity.setUsername(mItem.getUsername());
+                                    entity.setJid(mItem.getUsername()+"@"+OpenfireConnector.DOMAIN);
+                                    new ContactDBManager(getContext()).add(entity);
+                                    // 并从SP里删掉这一条
+                                    // SharedPreferences sharedPreferences = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
+                                    // Set<String> set = sharedPreferences.getStringSet("notaddusers", new HashSet<>());
+                                    // set.remove(mItem.getUsername());
+                                    // sharedPreferences.edit().putStringSet("notaddusers", set).commit();
+
+                                }
+                                // 回复好友表示已同意
+                                OpenfireConnector.replyfriendapply(mItem.getUsername(), false);
+                                // 反向添加添加好友
+                                OpenfireConnector.addFriend(mItem.getUsername());
+                                // 刷新视图
+                                ContactLab.refreshdatalocal(getContext());
+                                // 因为前面已经改为已添加，所以此时已经可以给对方发消息了，对方也确实收的到尝试发一条问候语给对方
+                                OpenfireConnector.sendmessage(mItem.getUsername(), "We're already friends!");
+                                updateUI();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    mButton.setVisibility(View.VISIBLE);
+                    break;
+                case FRIENDTYPE_TO:
+                    // 是发送，被收到了，但还未获同意者
+                    mButton.setText("WAITING");
+                    mButton.setClickable(false);
+                    mButton.setOnClickListener(null);
+                    mButton.setVisibility(View.VISIBLE);
+                    break;
+                case FRIENDTYPE_NONE:
+                    mButton.setText("?");
+                    mButton.setClickable(false);
+                    mButton.setOnClickListener(null);
+                    mButton.setVisibility(View.VISIBLE);
+                    break;
+                case FRIENDTYPE_ASK:
+                    // 是发送，被收到了，但还未获同意者
+                    mButton.setText("WAITING");
+                    mButton.setClickable(false);
+                    mButton.setOnClickListener(null);
+                    mButton.setVisibility(View.VISIBLE);
+                    break;
+            }
             mButton_refuse.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -294,6 +345,7 @@ public class MainFragment_Contacts extends Fragment {
         return result;
     }
 
+    @Deprecated
     public boolean addFriend(Roster roster, String friendName, String name) throws Exception {
         try {
             // 本部分修改自：https://blog.csdn.net/EricFantastic/article/details/48311871
@@ -317,7 +369,7 @@ public class MainFragment_Contacts extends Fragment {
             return false;
         }
     }
-
+    @Deprecated
     public boolean refuseFriend(Roster roster, String friendName, String name) {
         try {
             Presence presenceRes = new Presence(Presence.Type.unsubscribe);

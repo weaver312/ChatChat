@@ -1,7 +1,9 @@
 package com.weaverhong.lesson.chatchat.Activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -10,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -22,11 +25,16 @@ import com.weaverhong.lesson.chatchat.Fragment.MainFragment_Profile;
 import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.NEW_ADDFRIEND;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.sAbstractXMPPConnection;
+
 public class MainActivity extends BaseAppCompatActivity {
 
     BottomNavigationView mBottomNavigationView;
     ViewPager mViewPager;
     Context mContext;
+    private MessageReceiver mMessageReceiver;
+
 
     MainFragment_Chats frag0;
     MainFragment_Contacts frag1;
@@ -58,6 +66,7 @@ public class MainActivity extends BaseAppCompatActivity {
         // actionBar.setDisplayHomeAsUpEnabled(true);
 
         mBottomNavigationView = findViewById(R.id.navigation_container);
+        mBottomNavigationView.setBackgroundColor(getColor(R.color.navigationBackground));
         mViewPager = findViewById(R.id.viewpager);
 
         if (fragment == null) {
@@ -66,6 +75,8 @@ public class MainActivity extends BaseAppCompatActivity {
                     .add(R.id.main_fragmentcontainer, fragment)
                     .commit();
         }
+        if (sAbstractXMPPConnection.isAuthenticated())
+            ContactLab.refreshdataonline(getApplicationContext());
 
         // final ArrayList<Fragment> fgLists=new ArrayList<>(3);
         frag0 = MainFragment_Chats.newInstance();
@@ -145,10 +156,21 @@ public class MainActivity extends BaseAppCompatActivity {
                         mViewPager.setCurrentItem(0, false);
                         break;
                     case R.id.action_navigation_friends:
+                        Log.e("MainActivity-onNavigationItemReselected!", "refreshing from server");
+                        // 这里必须先检测服务器是否联通
+                        if (OpenfireConnector.sAbstractXMPPConnection.isAuthenticated()) {
+                            // try {
+                                Toast.makeText(MainActivity.this, "Updating contacts from server...", Toast.LENGTH_SHORT).show();
+                                ContactLab.refreshdataonline(getApplicationContext());
+                                // getContactsFromServerByRoster();
+                                // Thread.sleep(500);
+                            // } catch (InterruptedException e) {
+                            //     e.printStackTrace();
+                            // }
+                        } else {
+                            Toast.makeText(MainActivity.this, "Please check network", Toast.LENGTH_SHORT).show();
+                        }
                         ContactLab.refreshdatalocal(getApplicationContext());
-                        // 这里有点疑问，为什么Toast显示不出来，不管是getApplicationContext还是什么，好像都不行，诡谲
-                        Toast.makeText(mContext,"Updating contacts from server... please refresh more times!", Toast.LENGTH_SHORT);
-                        ContactLab.refreshdataonline(getApplicationContext());
                         frag1.updateUI();
                         mViewPager.setCurrentItem(1, false);
                         break;
@@ -158,6 +180,9 @@ public class MainActivity extends BaseAppCompatActivity {
                 }
             }
         });
+
+        IntentFilter intentFilter = new IntentFilter(NEW_ADDFRIEND);
+        registerReceiver(mMessageReceiver, intentFilter);
     }
 
     @Override
@@ -185,7 +210,7 @@ public class MainActivity extends BaseAppCompatActivity {
     private void exit() {
         if ((System.currentTimeMillis() - exitTime) > 2000) {
             Toast.makeText(getApplicationContext(),
-                    "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    "press back to exit", Toast.LENGTH_SHORT).show();
             exitTime = System.currentTimeMillis();
         } else {
             OpenfireConnector.breakConn();
@@ -196,4 +221,11 @@ public class MainActivity extends BaseAppCompatActivity {
         }
     }
 
+    private class MessageReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ContactLab.refreshdatalocal(mContext);
+            frag1.updateUI();
+        }
+    }
 }

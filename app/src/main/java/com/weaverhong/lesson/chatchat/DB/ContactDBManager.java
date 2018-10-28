@@ -33,6 +33,25 @@ public class ContactDBManager {
         db.close();
     }
 
+    public void addAllinRewriteMode(List<UserEntity> list) {
+        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+        for (UserEntity item : list) {
+            ContentValues values = new ContentValues();
+            values.put("jid", item.getJid());
+            values.put("username", item.getUsername());
+            values.put("ifadded", item.getIfadded());
+            try {
+                db.insert(TBNAME, null, values);
+            } catch (Exception e) {
+                e.printStackTrace();
+                // 1可以覆盖0，0不能覆盖1
+                if (item.getIfadded()==1)
+                    db.update(TBNAME, values, "USERNAME=?", new String[]{item.getUsername()});
+            }
+        }
+        db.close();
+    }
+
     public void addAll(List<UserEntity> list) {
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
         for (UserEntity item : list) {
@@ -44,6 +63,7 @@ public class ContactDBManager {
                 db.insert(TBNAME, null, values);
             } catch (Exception e) {
                 e.printStackTrace();
+                db.update(TBNAME, values, "USERNAME=?", new String[]{item.getUsername()});
             }
         }
         db.close();
@@ -122,8 +142,9 @@ public class ContactDBManager {
         Cursor cursor = db.query(TBNAME, null, "USERNAME=?",
                 new String[]{username}, null, null, null);
 
-        UserEntity item = new UserEntity();
+        UserEntity item = null;
         if (cursor != null && cursor.moveToFirst()) {
+            item = new UserEntity();
             item.setId(cursor.getInt(cursor.getColumnIndex("ID")));
 
             item.setJid(cursor.getString(cursor.getColumnIndex("JID")));
@@ -134,5 +155,11 @@ public class ContactDBManager {
         }
         db.close();
         return item;
+    }
+
+    public void deleteAllAdded() {
+        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+        db.delete(TBNAME, "IFADDED=?", new String[]{String.valueOf(1)});
+        db.close();
     }
 }

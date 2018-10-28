@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,7 +30,11 @@ import com.weaverhong.lesson.chatchat.R;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.sendGet;
 
 public class ChatActivity extends BaseAppCompatActivity {
 
@@ -38,6 +43,7 @@ public class ChatActivity extends BaseAppCompatActivity {
     String rightuser;
     MessageDBManager messageDBManager;
     MyReceiver myReceiver;
+    Handler mHandler;
 
     private static final String EXTRA_CHATID = "com.weaverhong.chatchat.chatid";
     private static final String EXTRA_USERNAME = "com.weaverhong.chatchat.username_right";
@@ -59,6 +65,7 @@ public class ChatActivity extends BaseAppCompatActivity {
         this.mContext = this;
         super.onCreate(onSavedInstanceState);
         setContentView(R.layout.activity_chat);
+        mHandler = new Handler();
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -85,33 +92,46 @@ public class ChatActivity extends BaseAppCompatActivity {
                 Editable edittext = mEditText.getText();
                 if (edittext != null && edittext.length() > 0 && leftuser != null && rightuser != null
                         && !leftuser.equals("") && !rightuser.equals("")) {
-                    try {
-                        String text = edittext.toString();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
 
-                        // Long time = System.currentTimeMillis();
-                        // Map<String, String> map = new HashMap<>();
-                        // map.put(OpenfireConnector.XMLTAG_TIME, "" + time);
+                                // Long time = System.currentTimeMillis();
+                                // Map<String, String> map = new HashMap<>();
+                                // map.put(OpenfireConnector.XMLTAG_TIME, "" + time);
 
-                        // Log.e("ChatActivity", "trying to send message");
-                        OpenfireConnector.sendmessage(leftuser, text);
+                                // Log.e("ChatActivity", "trying to send message");
 
-                        // Log.e("ChatActivity", "trying to store message");
-                        // have to set MSGTRANSID to null, trying to use other method:
-                        // MessageEntity item = new MessageEntity();
-                        // item.setDirection(0);
-                        // item.setReceivername(leftuser);
-                        // item.setSendername(rightuser);
-                        // item.setContent(text);
-                        // item.setCreatetime("" + time);
-                        // item.setMsgtranid("null");
-                        // messageDBManager.add(item);
+                                try {
+                                    String text = edittext.toString();
+                                    Map<String, String> args = new HashMap<>();
+                                    Long nettime = Long.valueOf(sendGet("http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp").substring(83, 96));
+                                    args.put("mytimestamp", nettime+"");
+                                    OpenfireConnector.sendmessage(leftuser, text, args);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                // Log.e("ChatActivity", "trying to store message");
+                                // have to set MSGTRANSID to null, trying to use other method:
+                                // MessageEntity item = new MessageEntity();
+                                // item.setDirection(0);
+                                // item.setReceivername(leftuser);
+                                // item.setSendername(rightuser);
+                                // item.setContent(text);
+                                // item.setCreatetime("" + time);
+                                // item.setMsgtranid("null");
+                                // messageDBManager.add(item);
 
-                        Log.e("ChatActivity", "trying to update UI and make input empty");
-                        updateUI();
-                        mEditText.setText("");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                                Log.e("ChatActivity", "trying to update UI and make input empty");
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateUI();
+                                    }
+                                });
+                                mEditText.setText("");
+                            }
+                        }).start();
                 } else {
                     // Toast.makeText(mContext, "Empty input!", Toast.LENGTH_SHORT);
                 }

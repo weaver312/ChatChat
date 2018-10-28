@@ -21,9 +21,19 @@ public class ContactLab {
             for (UserEntity e : userlist) {
                 ContactListItem item = new ContactListItem();
                 item.setUsername(e.getUsername());
-                item.setIffriend(e.getIfadded() == 0 ? false : true);
+                item.setFriendtype(e.getIfadded());
+                if (e.getIfadded() == OpenfireConnector.FRIENDTYPE_BOTH)
+                    item.setIffriend(true);
+                else if (e.getIfadded() == OpenfireConnector.FRIENDTYPE_FROM)
+                    item.setIffriend(false);
+                else
+                    item.setIffriend(false);
+
+                // if (e.get)
+
                 templist.add(item);
             }
+
             list = templist;
         } catch (Exception e){
             e.printStackTrace();
@@ -32,6 +42,17 @@ public class ContactLab {
 
     public static void refreshdataonline(Context applicationContext) {
         List<UserEntity> entrieslist = OpenfireConnector.getContactsFromServer();
+        // Log.e("ContactLab-entity number: ",entrieslist.size()+"");
+        // new ContactDBManager(applicationContext).deleteAllAdded();
+        // for (UserEntity e : entrieslist) {
+        //     // Log.e("ContactLab-entity from server: ",e.getUsername() + " added: " +e.getIfadded());
+        //     if (e.getIfadded() == 0)
+        //         entrieslist.remove(e);
+        // }
+        // new ContactDBManager(applicationContext).addAllinRewriteMode(entrieslist);
+
+        // 完全清空替换掉原先的好友数据即可
+        new ContactDBManager(applicationContext).deleteAll();
         new ContactDBManager(applicationContext).addAll(entrieslist);
     }
 }
