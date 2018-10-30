@@ -63,6 +63,7 @@ public class ChatActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle onSavedInstanceState) {
         this.mContext = this;
+        OpenfireConnector.setCurrentContext(this);
         super.onCreate(onSavedInstanceState);
         setContentView(R.layout.activity_chat);
         mHandler = new Handler();
@@ -123,15 +124,9 @@ public class ChatActivity extends BaseAppCompatActivity {
                                 // messageDBManager.add(item);
 
                                 Log.e("ChatActivity", "trying to update UI and make input empty");
-                                mHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        updateUI();
-                                    }
-                                });
-                                mEditText.setText("");
                             }
                         }).start();
+                    mEditText.setText("");
                 } else {
                     // Toast.makeText(mContext, "Empty input!", Toast.LENGTH_SHORT);
                 }
@@ -160,11 +155,34 @@ public class ChatActivity extends BaseAppCompatActivity {
             }
         });
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.weaverhong.lesson.chatchat.newmessage");
-        registerReceiver(myReceiver,intentFilter);
+        myReceiver = new MyReceiver();
+
+        // IntentFilter intentFilter = new IntentFilter();
+        // intentFilter.addAction("com.weaverhong.lesson.chatchat.newmessage");
+        // registerReceiver(myReceiver,intentFilter);
+        // Log.e("Chatactivity","receiver received.");
 
         updateUI();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e("Chatactivity","resume.");
+        try {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("com.weaverhong.lesson.chatchat.newmessage");
+            ChatActivity.this.registerReceiver(myReceiver, intentFilter);
+        } catch (Exception e ) {}
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e("Chatactivity","pause.");
+        try {
+            ChatActivity.this.unregisterReceiver(myReceiver);
+        } catch (Exception e ) {}
     }
 
     @Override
@@ -288,8 +306,6 @@ public class ChatActivity extends BaseAppCompatActivity {
     public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            Log.e("ChatActivity-MyReceiver", "BROADCAST RECEIVED");
             // Bundle bundle = intent.getExtras();
             // Only message received are processed. Message sent is not listened
             // String msgtranid = bundle.getString("MSGTRANID");

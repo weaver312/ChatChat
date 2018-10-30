@@ -70,6 +70,7 @@ public class OpenfireConnector {
     public static final int FRIENDTYPE_FROM = 2;
     public static final int FRIENDTYPE_TO   = 3;
     public static final int FRIENDTYPE_ASK  = 4;
+    public static Context currentContext;
 
     public static AbstractXMPPConnection sAbstractXMPPConnection;
     private static AccountManager accountManager;
@@ -87,6 +88,7 @@ public class OpenfireConnector {
     }
 
     public static void buildConn(Context context) throws Exception {
+        currentContext = context;
         try {
             InetAddress addr = InetAddress.getByName(IP);
             HostnameVerifier verifier = (arg0, arg1) -> false;
@@ -125,8 +127,6 @@ public class OpenfireConnector {
             //                         e.printStackTrace();
             //                     }
             //                     // presence.setPriority(120);
-            //                     // presence.setLanguage("what the fuck");
-            //                     presence.setStanzaId("fuck id");
             //                     Log.e("Openfireconnector-sendpresence", presence.toXML().toString());
             //                 } else {
             //                     Log.e("Openfireconnector-sendpresence", "negative");
@@ -165,7 +165,7 @@ public class OpenfireConnector {
                         // 说明不是delay的消息，属于即时的消息，需要取出time标签才行
                         try {
                             System.out.println(message.toXML().toString());
-                            item.setCreatetime(message.toXML().toString().split("<name>mytimestamp</name><value type='long'>")[1].split("</value></property>")[0]);
+                            item.setCreatetime(message.toXML().toString().split("<name>mytimestamp</name><value type='string'>")[1].split("</value></property>")[0]);
                         } catch (Exception ee) {
                             ee.printStackTrace();
                             System.out.println("FATAL MISTAKE! ");
@@ -179,6 +179,8 @@ public class OpenfireConnector {
                     // 2. 通知更新视图
                     Intent intent = new Intent();
                     intent.setAction("com.weaverhong.lesson.chatchat.newmessage");
+                    currentContext.sendBroadcast(intent);
+                    Log.e("OpenfireConnector-MyReceiver", "BROADCAST SEND");
                 }
             });
             sChatManager.addOutgoingListener(new OutgoingChatMessageListener() {
@@ -202,6 +204,9 @@ public class OpenfireConnector {
                     intent.putExtra("usernameleft", message.getTo().toString().split("/")[0]);
                     intent.putExtra("usernameright", username);
                     intent.setAction("com.weaverhong.lesson.chatchat.newmessage");
+                    currentContext.sendBroadcast(intent);
+                    Log.e("OpenfireConnector-MyReceiver", "BROADCAST SEND");
+
                 }
             });
 
@@ -209,6 +214,7 @@ public class OpenfireConnector {
             sRoster.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
             if (sRoster.getGroup("friends") == null)
                 sRoster.createGroup("friends");
+
             // sRoster.addSubscribeListener(new SubscribeListener() {
             //     @Override
             //     public SubscribeAnswer processSubscribe(Jid from, Presence subscribeRequest) {
@@ -367,7 +373,6 @@ public class OpenfireConnector {
         accountManager.changePassword(newpassword);
     }
 
-
     public static boolean isAuthenticated() {
         return sAbstractXMPPConnection.isAuthenticated();
     }
@@ -520,5 +525,7 @@ public class OpenfireConnector {
         return result.toString();
     }
 
-
+    public static void setCurrentContext(Context context) {
+        currentContext = context;
+    }
 }

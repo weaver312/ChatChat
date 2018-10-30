@@ -23,7 +23,11 @@
         <activity android:name=".Activity.RegistActivity"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
         </activity>
-        <activity android:name=".Activity.ChatActivity"/>
+        <activity android:name=".Activity.ChatActivity">
+            <intent-filter>
+                <action android:name="com.weaverhong.lesson.chatchat.newmessage"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".Activity.MainActivity"/>
         <activity android:name=".Activity.UserActivity"/>
     </application>

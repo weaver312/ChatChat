@@ -3,6 +3,7 @@ package com.weaverhong.lesson.chatchat.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -38,7 +39,9 @@ import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.DOMAIN;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_ASK;
@@ -47,6 +50,7 @@ import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_FROM;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_NONE;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_TO;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.sAbstractXMPPConnection;
+import static com.weaverhong.lesson.chatchat.OpenfireConnector.sendGet;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.username;
 
 public class MainFragment_Contacts extends Fragment {
@@ -55,6 +59,7 @@ public class MainFragment_Contacts extends Fragment {
     private ContactAdapter mContactAdapter;
     private View view;
     FloatingActionButton mFloatingActionButton;
+    Handler mHandler;
 
     public static MainFragment_Contacts newInstance() {
         MainFragment_Contacts fragment = new MainFragment_Contacts();
@@ -64,6 +69,7 @@ public class MainFragment_Contacts extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mHandler = new Handler();
     }
 
     @Override
@@ -234,8 +240,26 @@ public class MainFragment_Contacts extends Fragment {
                                 // 刷新视图
                                 ContactLab.refreshdatalocal(getContext());
                                 // 因为前面已经改为已添加，所以此时已经可以给对方发消息了，对方也确实收的到尝试发一条问候语给对方
-                                OpenfireConnector.sendmessage(mItem.getUsername(), "We're already friends!");
-                                updateUI();
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Map<String, String> args = new HashMap<>();
+                                            Long nettime = null;
+                                            nettime = Long.valueOf(sendGet("http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp").substring(83, 96));
+                                            args.put("mytimestamp", nettime+"");
+                                            OpenfireConnector.sendmessage(mItem.getUsername(), "We're already friends!", args);
+                                            mHandler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    updateUI();
+                                                }
+                                            });
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).start();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
