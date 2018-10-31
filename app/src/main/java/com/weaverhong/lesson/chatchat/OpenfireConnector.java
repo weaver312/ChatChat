@@ -11,6 +11,7 @@ import com.weaverhong.lesson.chatchat.Entity.UserEntity;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.StanzaCollector;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
@@ -24,6 +25,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.packet.id.StanzaIdUtil;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
@@ -31,6 +33,10 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.jiveproperties.JivePropertiesManager;
+import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.search.UserSearch;
+import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jivesoftware.smackx.xdata.Form;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
@@ -61,8 +67,8 @@ public class OpenfireConnector {
     public static final int USER_LEFT = 0;
     public static final int USER_RIGHT = 1;
     public static final String XMLTAG_TIME = "TIMESTAMP";
-    public static final String IP = "192.168.191.1";
-    public static final String DOMAIN = "192.168.191.1";
+    public static final String IP = "39.104.120.161";
+    public static final String DOMAIN = "39.104.120.161";
     public static final String EXIT_ALL = "com.weaverhong.chatchat.EXIT_ALL";
     public static final String NEW_ADDFRIEND = "com.weaverhong.chatchat.NEW_ADDFRIEND";
     public static final int FRIENDTYPE_NONE = 0;
@@ -76,6 +82,7 @@ public class OpenfireConnector {
     private static AccountManager accountManager;
     private static ChatManager sChatManager;
     private static Roster sRoster;
+    private static UserSearchManager userSearchManger;
 
     public static String username = "";
 
@@ -83,13 +90,15 @@ public class OpenfireConnector {
         try {
             // buildConn();
         } catch (Exception e) {
-            Log.e("OpenfireConnector-static", e.toString());
+            // Log.e("OpenfireConnector-static", e.toString());
         }
     }
 
     public static void buildConn(Context context) throws Exception {
         currentContext = context;
         try {
+            SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
+            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
             InetAddress addr = InetAddress.getByName(IP);
             HostnameVerifier verifier = (arg0, arg1) -> false;
             DomainBareJid serviceName = JidCreate.domainBareFrom(DOMAIN);
@@ -101,7 +110,12 @@ public class OpenfireConnector {
                     .setHostAddress(addr)
                     .setDebuggerEnabled(true)
                     .build();
+
             sAbstractXMPPConnection = new XMPPTCPConnection(config);
+            // 这句不能少，具体原因看此方法addIQProvider()的注释
+            ProviderManager.addIQProvider("query", "jabber:iq:search", new UserSearch.Provider());
+
+            userSearchManger = new UserSearchManager(sAbstractXMPPConnection);
 
             accountManager = AccountManager.getInstance(sAbstractXMPPConnection);
             // SSL很麻烦，没弄明白怎么配置，先这么用上
@@ -135,7 +149,6 @@ public class OpenfireConnector {
             //         }
             //     }
             // }, new StanzaTypeFilter(Presence.class));
-
 
             sChatManager = ChatManager.getInstanceFor(sAbstractXMPPConnection);
             sChatManager.addIncomingListener(new IncomingChatMessageListener() {
@@ -180,7 +193,7 @@ public class OpenfireConnector {
                     Intent intent = new Intent();
                     intent.setAction("com.weaverhong.lesson.chatchat.newmessage");
                     currentContext.sendBroadcast(intent);
-                    Log.e("OpenfireConnector-MyReceiver", "BROADCAST SEND");
+                    // Log.e("OpenfireConnector-MyReceiver", "BROADCAST SEND");
                 }
             });
             sChatManager.addOutgoingListener(new OutgoingChatMessageListener() {
@@ -205,7 +218,7 @@ public class OpenfireConnector {
                     intent.putExtra("usernameright", username);
                     intent.setAction("com.weaverhong.lesson.chatchat.newmessage");
                     currentContext.sendBroadcast(intent);
-                    Log.e("OpenfireConnector-MyReceiver", "BROADCAST SEND");
+                    // Log.e("OpenfireConnector-MyReceiver", "BROADCAST SEND");
 
                 }
             });
@@ -300,7 +313,7 @@ public class OpenfireConnector {
             sAbstractXMPPConnection.connect();
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("OpenfireConnector-buildconn", e.getLocalizedMessage());
+            // Log.e("OpenfireConnector-buildconn", e.getLocalizedMessage());
         }
     }
     public static void breakConn() {
@@ -381,6 +394,35 @@ public class OpenfireConnector {
     }
     public static Roster getRoster() {
         return Roster.getInstanceFor(sAbstractXMPPConnection);
+    }
+    // 来自MainFragment_Contacts，准备放进OpenfireConnector
+    public static List<String> searchUser(final String username) {
+        List<String> result = new ArrayList<>();
+        try {
+            // 这里本来是用domain的，前面改来改去怀疑这是因为domain不在DNS里，所以改成硬编码的IP了
+            // 后来发现是因为smack版本4.3.0有一点改动，gradle里换成smack 4.2.3就能用了
+            DomainBareJid jid = JidCreate.domainBareFrom("search."+IP);
+            Form searchForm = userSearchManger.getSearchForm(jid);
+            Form answerForm = searchForm.createAnswerForm();
+            answerForm.setAnswer("Name", true);
+            answerForm.setAnswer("search", username);
+
+            ReportedData resData = userSearchManger.getSearchResults(answerForm, jid);
+            List<ReportedData.Row> list = resData.getRows();
+
+            for (ReportedData.Row row : list) {
+                result.add(row.getValues("Name") == null ? "" : row.getValues("Name").iterator().next().toString());
+                // Log.e("MYLOG6", row.getValues("Name").iterator().next().toString());
+            }
+            // Log.e("MYLOG6", ""+OpenfireConnector.sAbstractXMPPConnection.isConnected());
+            // Log.e("MYLOG6", ""+ OpenfireConnector.sAbstractXMPPConnection.isAuthenticated());
+            // Log.e("MYLOG6", "" + list.size());
+            // Log.e("MYLOG6", username);
+            // Log.e("MYLOG6", list.toString());
+        } catch (Exception e) {
+            // Log.e("MYLOG5", e.getMessage());
+        }
+        return result;
     }
 
     public static List<UserEntity> getContactsFromServerByRoster() {

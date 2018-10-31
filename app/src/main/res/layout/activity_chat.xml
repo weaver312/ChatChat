@@ -35,13 +35,15 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:textAllCaps="false"
-            android:hint="input message here" />
+            android:hint="@string/activity_chat_input" />
 
         <Button
+            android:background="@drawable/button_send"
+            android:textColor="@android:color/white"
             android:id="@+id/chat_send"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="send" />
+            android:text="@string/activity_chat_send" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

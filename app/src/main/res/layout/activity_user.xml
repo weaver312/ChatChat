@@ -13,7 +13,7 @@
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
@@ -30,7 +30,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="36dp"
                 android:layout_marginTop="8dp"
-                android:text="Username"
+                android:text="@string/hint_null"
                 android:textColor="@android:color/white"
                 android:textSize="36sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -38,7 +38,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.325" />
 
-            <ImageView
+            <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/profile_icon"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
@@ -59,7 +59,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Delete"
+                android:text="@string/activity_user_delete"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -76,7 +76,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Chat"
+                android:text="@string/activity_user_chat"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
                 app:layout_constraintBottom_toBottomOf="parent"

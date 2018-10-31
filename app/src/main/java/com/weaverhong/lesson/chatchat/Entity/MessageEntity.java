@@ -79,6 +79,14 @@ public class MessageEntity {
 
     }
 
+    public static boolean checkNullable(MessageEntity messageEntity) {
+        return messageEntity.getSendername()==null ||
+                messageEntity.getReceivername()==null ||
+                messageEntity.getCreatetime()==null ||
+                messageEntity.getContent()==null ||
+                messageEntity.getMsgtranid()==null;
+    }
+
     // public MessageEntity(int id, String owner, String msgtranid, String sendername, String receivername, String createtime, String content, int direction) {
     //     this.id = id;
     //     this.owner = owner;

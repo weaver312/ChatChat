@@ -3,4 +3,27 @@
     <string name="navigation_chat">Chats</string>
     <string name="navigation_people">Contacts</string>
     <string name="navigation_profile">Profile</string>
+
+    <string name="activity_chat_input">input message here</string>
+    <string name="activity_chat_send">send</string>
+    <string name="activity_login_let_s_chat">let\'s chat!</string>
+    <string name="activity_login_im_based_on_openfire">IM based on openfire™</string>
+    <string name="activity_login_create_new_account">Create New Account</string>
+    <string name="activity_regist_join_in">Join in</string>
+    <string name="activity_regist_join_chatchat">Join ChatChat !</string>
+    <string name="activity_user_delete">Delete</string>
+    <string name="activity_user_chat">Chat</string>
+
+    <string name="dialog_version">Version 0.1</string>
+    <string name="dialog_deleteuser_title">All chat history will be removed as well.</string>
+    <string name="dialog_deleteuser_content">You\'ll be removed from his/her roster.</string>
+
+    <string name="hint_email">Email</string>
+    <string name="hint_username">username</string>
+    <string name="hint_password">password</string>
+    <string name="hint_null">null</string>
+    <string name="hint_add">add</string>
+    <string name="hint_refuse">refuse</string>
+    <string name="hint_no_contacts">No Contacts</string>
+    <string name="hint_no_recent_chats">No Recent Chats</string>
 </resources>

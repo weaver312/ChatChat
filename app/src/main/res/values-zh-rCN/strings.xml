@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChatChat</string>
+    <string name="dialog_deleteuser_title">所有聊天记录都将被删除</string>
+    <string name="dialog_deleteuser_content">你将从对方的好友列表中消失</string>
+    <string name="dialog_version">Version 0.1</string>
+
+    <string name="navigation_chat">最近</string>
+    <string name="navigation_people">朋友</string>
+    <string name="navigation_profile">我</string>
+
+    <string name="activity_chat_input">消息</string>
+    <string name="activity_chat_send">发送</string>
+    <string name="activity_login_let_s_chat">登录！</string>
+    <string name="activity_login_im_based_on_openfire">基于openfire™的即时通信软件</string>
+    <string name="activity_login_create_new_account">首次使用？</string>
+    <string name="activity_regist_join_in">加入ChatChat</string>
+    <string name="activity_regist_join_chatchat">注册</string>
+    <string name="activity_user_delete">删除</string>
+    <string name="activity_user_chat">发消息</string>
+
+    <string name="hint_refuse">拒绝</string>
+    <string name="hint_add">添加</string>
+    <string name="hint_email">邮箱</string>
+    <string name="hint_username">用户名</string>
+    <string name="hint_password">密码</string>
+    <string name="hint_null">null</string>
+    <string name="hint_no_contacts">暂无联系人</string>
+    <string name="hint_no_recent_chats">最近没有对话</string>
+</resources>

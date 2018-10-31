@@ -28,7 +28,6 @@ import com.weaverhong.lesson.chatchat.OpenfireConnector;
 import com.weaverhong.lesson.chatchat.R;
 
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -168,7 +167,6 @@ public class ChatActivity extends BaseAppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("Chatactivity","resume.");
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("com.weaverhong.lesson.chatchat.newmessage");
@@ -179,7 +177,6 @@ public class ChatActivity extends BaseAppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        Log.e("Chatactivity","pause.");
         try {
             ChatActivity.this.unregisterReceiver(myReceiver);
         } catch (Exception e ) {}
@@ -197,13 +194,13 @@ public class ChatActivity extends BaseAppCompatActivity {
         // get new messagelist from DB
         List<MessageEntity> list = messageDBManager.findByRecvAndSender(leftuser, rightuser);
         list.addAll(messageDBManager.findByRecvAndSender(rightuser, leftuser));
-        // sort in send time
-        list.sort(new Comparator<MessageEntity>() {
-            @Override
-            public int compare(MessageEntity o1, MessageEntity o2) {
-                return o1.getCreatetime().compareTo(o2.getCreatetime());
-            }
-        });
+        // sort by send time
+        // list.sort(new Comparator<MessageEntity>() {
+        //     @Override
+        //     public int compare(MessageEntity o1, MessageEntity o2) {
+        //         return o1.getCreatetime().compareTo(o2.getCreatetime());
+        //     }
+        // });
         for (MessageEntity m : list) {
             String format = "yyyy-MM-dd HH:mm:ss";
             SimpleDateFormat sdf = new SimpleDateFormat(format);
@@ -272,7 +269,6 @@ public class ChatActivity extends BaseAppCompatActivity {
         public ChatHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.item_chat, parent, false));
             itemView.setOnClickListener(this);
-
         }
 
         @Override

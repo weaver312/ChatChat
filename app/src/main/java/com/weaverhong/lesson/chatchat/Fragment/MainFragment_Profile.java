@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class MainFragment_Profile extends Fragment {
                     case 0:
                         // 修改密码
                         final EditText editText = new EditText(getActivity());
+                        editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         new AlertDialog.Builder(getActivity())
                                 .setView(editText)
                                 .setTitle("New password")

@@ -10,6 +10,8 @@ import com.weaverhong.lesson.chatchat.Entity.MessageEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.weaverhong.lesson.chatchat.Entity.MessageEntity.checkNullable;
+
 public class MessageDBManager {
 
     private MessageDBHelper mDBHelper;
@@ -22,6 +24,9 @@ public class MessageDBManager {
     public void add(MessageEntity item) {
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        // 尤其是插入空时间，会导致排序出问题，所以这里一致要求带空值的item不得插入，
+        // sqlite又没找到空值约束，就这么做了
+        if (checkNullable(item)) return;
         values.put("msgtranid", item.getMsgtranid());
         values.put("sendername", item.getSendername());
         values.put("receivername", item.getReceivername());
@@ -35,6 +40,7 @@ public class MessageDBManager {
     public void addAll(List<MessageEntity> list) {
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
         for (MessageEntity item : list) {
+            if (checkNullable(item)) break;
             ContentValues values = new ContentValues();
             values.put("msgtranid", item.getMsgtranid());
             values.put("sendername", item.getSendername());
@@ -145,7 +151,7 @@ public class MessageDBManager {
     public List<MessageEntity> findByRecvAndSender(String receiver, String sender) {
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
         Cursor cursor = db.query(TBNAME, null, "SENDERNAME=? AND RECEIVERNAME=?",
-                new String[]{sender,receiver}, null, null, null);
+                new String[]{sender,receiver}, null, null, "CREATETIME");
 
         List<MessageEntity> list = new ArrayList<>();
 

@@ -28,17 +28,10 @@ import com.weaverhong.lesson.chatchat.R;
 
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smackx.search.ReportedData;
-import org.jivesoftware.smackx.search.UserSearch;
-import org.jivesoftware.smackx.search.UserSearchManager;
-import org.jivesoftware.smackx.xdata.Form;
-import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +42,6 @@ import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_BOTH;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_FROM;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_NONE;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.FRIENDTYPE_TO;
-import static com.weaverhong.lesson.chatchat.OpenfireConnector.sAbstractXMPPConnection;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.sendGet;
 import static com.weaverhong.lesson.chatchat.OpenfireConnector.username;
 
@@ -95,7 +87,7 @@ public class MainFragment_Contacts extends Fragment {
                                     Toast.makeText(getActivity(), "empty input! no search executed" + input, Toast.LENGTH_LONG).show();
                                 } else {
                                     try {
-                                        List<String> result = searchUser(editText.getText().toString());
+                                        List<String> result = OpenfireConnector.searchUser(editText.getText().toString());
                                         String[] resultarray = new String[result.size()];
                                         result.toArray(resultarray);
                                         AlertDialog alertDialog = new AlertDialog
@@ -335,39 +327,6 @@ public class MainFragment_Contacts extends Fragment {
         }
     }
 
-    // 准备放进OpenfireConnector
-    public List<String> searchUser(final String username) {
-        List<String> result = new ArrayList<>();
-        try {
-            UserSearchManager userSearchManger = new UserSearchManager(sAbstractXMPPConnection);
-            // 这句不能少，具体原因看此方法addIQProvider()的注释
-            ProviderManager.addIQProvider("query", "jabber:iq:search", new UserSearch.Provider());
-
-            // 这里本来是用domain的，前面改来改去怀疑这是因为domain不在DNS里，所以改成硬编码的IP了
-            // 后来发现是因为smack版本4.3.0有一点改动，gradle里换成smack 4.2.3就能用了
-            DomainBareJid jid = JidCreate.domainBareFrom("search.192.168.191.1");
-            Form searchForm = userSearchManger.getSearchForm(jid);
-            Form answerForm = searchForm.createAnswerForm();
-            answerForm.setAnswer("Name", true);
-            answerForm.setAnswer("search", username);
-
-            ReportedData resData = userSearchManger.getSearchResults(answerForm, jid);
-            List<ReportedData.Row> list = resData.getRows();
-
-            for (ReportedData.Row row : list) {
-                result.add(row.getValues("Name") == null ? "" : row.getValues("Name").iterator().next().toString());
-                // Log.e("MYLOG6", row.getValues("Name").iterator().next().toString());
-            }
-            // Log.e("MYLOG6", ""+OpenfireConnector.sAbstractXMPPConnection.isConnected());
-            // Log.e("MYLOG6", ""+ OpenfireConnector.sAbstractXMPPConnection.isAuthenticated());
-            Log.e("MYLOG6", "" + list.size());
-            Log.e("MYLOG6", username);
-            // Log.e("MYLOG6", list.toString());
-        } catch (Exception e) {
-            Log.e("MYLOG5", e.getMessage());
-        }
-        return result;
-    }
 
     @Deprecated
     public boolean addFriend(Roster roster, String friendName, String name) throws Exception {

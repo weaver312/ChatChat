@@ -217,7 +217,7 @@ public class LoginActivity extends BaseActivity {
                                 }
                             }
                         } catch (Exception e) {
-                            Log.e("LoginActivity-authenticate", e.toString());
+                            // Log.e("LoginActivity-authenticate", e.toString());
                         }
                     }
                 }).start();
@@ -248,7 +248,7 @@ public class LoginActivity extends BaseActivity {
     private void exit() {
         if ((System.currentTimeMillis() - exitTime) > 2000) {
             Toast.makeText(getApplicationContext(),
-                    "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    "press to exit", Toast.LENGTH_SHORT).show();
             exitTime = System.currentTimeMillis();
         } else {
             Intent intent = new Intent();

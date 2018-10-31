@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -66,7 +65,10 @@ public class MainActivity extends BaseAppCompatActivity {
         // actionBar.setDisplayHomeAsUpEnabled(true);
 
         mBottomNavigationView = findViewById(R.id.navigation_container);
-        mBottomNavigationView.setBackgroundColor(getColor(R.color.navigationBackground));
+        // getcolor仅适用API23(android 6.0)及以后的系统
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        //     mBottomNavigationView.setBackgroundColor(getColor(R.color.navigationBackground));
+        // }
         mViewPager = findViewById(R.id.viewpager);
 
         if (fragment == null) {
@@ -156,7 +158,7 @@ public class MainActivity extends BaseAppCompatActivity {
                         mViewPager.setCurrentItem(0, false);
                         break;
                     case R.id.action_navigation_friends:
-                        Log.e("MainActivity-onNavigationItemReselected!", "refreshing from server");
+                        // Log.e("MainActivity-onNavigationItemReselected!", "refreshing from server");
                         // 这里必须先检测服务器是否联通
                         if (OpenfireConnector.sAbstractXMPPConnection.isAuthenticated()) {
                             // try {

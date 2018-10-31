@@ -11,7 +11,7 @@
         android:layout_height="19dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="4dp"
-        android:text="All chat history will be removed as well."
+        android:text="@string/dialog_deleteuser_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:text="You'll be removed from his/her roster."
+        android:text="@string/dialog_deleteuser_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
