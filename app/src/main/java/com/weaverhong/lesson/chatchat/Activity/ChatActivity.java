@@ -193,7 +193,7 @@ public class ChatActivity extends BaseAppCompatActivity {
 
         // get new messagelist from DB
         List<MessageEntity> list = messageDBManager.findByRecvAndSender(leftuser, rightuser);
-        list.addAll(messageDBManager.findByRecvAndSender(rightuser, leftuser));
+        // list.addAll(messageDBManager.findByRecvAndSender(rightuser, leftuser));
         // sort by send time
         // list.sort(new Comparator<MessageEntity>() {
         //     @Override

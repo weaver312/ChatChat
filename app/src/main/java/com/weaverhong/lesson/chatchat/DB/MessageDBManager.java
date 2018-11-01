@@ -150,8 +150,8 @@ public class MessageDBManager {
 
     public List<MessageEntity> findByRecvAndSender(String receiver, String sender) {
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
-        Cursor cursor = db.query(TBNAME, null, "SENDERNAME=? AND RECEIVERNAME=?",
-                new String[]{sender,receiver}, null, null, "CREATETIME");
+        Cursor cursor = db.query(TBNAME, null, "SENDERNAME=? AND RECEIVERNAME=? OR SENDERNAME=? AND RECEIVERNAME=?",
+                new String[]{sender,receiver,receiver,sender}, null, null, "CREATETIME");
 
         List<MessageEntity> list = new ArrayList<>();
 

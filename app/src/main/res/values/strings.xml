@@ -26,4 +26,16 @@
     <string name="hint_refuse">refuse</string>
     <string name="hint_no_contacts">No Contacts</string>
     <string name="hint_no_recent_chats">No Recent Chats</string>
+    <string name="profile_new_password">New password</string>
+    <string name="hint_ok">ok</string>
+    <string name="hint_cancel">cancel</string>
+    <string name="share_content">chatchat, IM based on Openfire</string>
+    <string name="share_title">SHARE</string>
+    <string name="share_neutralbutton">SHARE</string>
+    <string name="share_positivebutton">OK</string>
+    <string name="profile_str0">Edit password</string>
+    <string name="profire_str1">About</string>
+    <string name="profile_str2">Quit APP</string>
+    <string name="profile_str3">Logout</string>
+    <string name="profile_str4">Delete All Data and Switch User</string>
 </resources>

@@ -12,7 +12,7 @@
     <string name="activity_chat_input">消息</string>
     <string name="activity_chat_send">发送</string>
     <string name="activity_login_let_s_chat">登录！</string>
-    <string name="activity_login_im_based_on_openfire">基于openfire™的即时通信软件</string>
+    <string name="activity_login_im_based_on_openfire">基于openfire的即时通信软件</string>
     <string name="activity_login_create_new_account">首次使用？</string>
     <string name="activity_regist_join_in">加入ChatChat</string>
     <string name="activity_regist_join_chatchat">注册</string>
@@ -24,7 +24,19 @@
     <string name="hint_email">邮箱</string>
     <string name="hint_username">用户名</string>
     <string name="hint_password">密码</string>
-    <string name="hint_null">null</string>
+    <string name="hint_null">空</string>
     <string name="hint_no_contacts">暂无联系人</string>
     <string name="hint_no_recent_chats">最近没有对话</string>
+    <string name="profile_new_password">新密码</string>
+    <string name="hint_ok">确定</string>
+    <string name="hint_cancel">取消</string>
+    <string name="share_content">chatchat，基于openfire的即时通信软件</string>
+    <string name="share_title">分享</string>
+    <string name="share_neutralbutton">分享</string>
+    <string name="share_positivebutton">好</string>
+    <string name="profile_str0">修改密码</string>
+    <string name="profire_str1">关于</string>
+    <string name="profile_str2">退出chatchat</string>
+    <string name="profile_str3">退出登录</string>
+    <string name="profile_str4">清除数据并切换用户</string>
 </resources>

@@ -28,7 +28,7 @@ public class MainFragment_Profile extends Fragment {
     TextView mUsernameTextview;
     TextView mRegisttimeTextview;
     ListView mProfileListview;
-    private static String[] liststr = {"Edit password","About","Quit APP","Logout","Delete All Data and Switch User"};
+    private String[] liststr;
 
     public static MainFragment_Profile newInstance() {
         Bundle args = new Bundle();
@@ -40,6 +40,12 @@ public class MainFragment_Profile extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        liststr = new String[]{
+                getString(R.string.profile_str0),
+                getString(R.string.profire_str1),
+                getString(R.string.profile_str2),
+                getString(R.string.profile_str3),
+                getString(R.string.profile_str4)};
     }
 
     @Override
@@ -52,7 +58,7 @@ public class MainFragment_Profile extends Fragment {
 
         SharedPreferences sp = getActivity().getSharedPreferences("chatchat", Context.MODE_PRIVATE);
         mUsernameTextview.setText(sp.getString("username", "null"));
-        ArrayAdapter<String> tempAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, liststr);
+        ArrayAdapter<String> tempAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, liststr);
         mProfileListview.setAdapter(tempAdapter);
         mProfileListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -64,8 +70,8 @@ public class MainFragment_Profile extends Fragment {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         new AlertDialog.Builder(getActivity())
                                 .setView(editText)
-                                .setTitle("New password")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                .setTitle(R.string.profile_new_password)
+                                .setPositiveButton(R.string.hint_ok, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         try {
@@ -84,21 +90,21 @@ public class MainFragment_Profile extends Fragment {
 
                                     }
                                 })
-                                .setNegativeButton("CANCEL", null)
+                                .setNegativeButton(R.string.hint_cancel, null)
                                 .create().show();
                         break;
                     case 1:
                         // 关于和分享
                         new AlertDialog.Builder(getActivity())
                                 .setView(R.layout.alertdialog_about)
-                                .setPositiveButton("OK", null)
-                                .setNeutralButton("SHARE", new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.share_positivebutton, null)
+                                .setNeutralButton(R.string.share_neutralbutton, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         Intent i = new Intent(Intent.ACTION_SEND);
                                         i.setType("text/plain");
-                                        i.putExtra(Intent.EXTRA_TEXT, "chatchat, IM based on Openfire\nhttp://swufe.edu.cn");
-                                        i = Intent.createChooser(i, "SHARE");
+                                        i.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_content)+"\nhttp://swufe.edu.cn");
+                                        i = Intent.createChooser(i, getString(R.string.share_title));
                                         startActivity(i);
                                     }
                                 })
